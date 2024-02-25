@@ -1,0 +1,173 @@
+
+<OperationFieldLayout@BoxLayout>
+    orientation: 'horizontal'
+    canvas.before:
+        Color:
+            rgba: 1, 0, 0, 1
+        Line:
+            width: 1
+            rectangle: self.x, self.y, self.width, self.height
+
+<AddReceiptScreen>:
+    BoxLayout:
+        padding: 20
+        spacing: 20
+        canvas.before:
+            Color:
+                rgba: 1, 0, 0, 1
+            Line:
+                width: 1
+                rectangle: self.x, self.y, self.width, self.height
+        padding: 20
+        orientation: 'vertical'
+        Label:
+            size_hint: 1, .1
+            text: 'Add receipt'
+            font_size: "25dp"
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+        GridLayout:
+            spacing: 10
+            cols: 1
+            row_default_height: 30
+            row_force_default: "True"
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+            OperationFieldLayout:
+                Label:
+                    size_hint: .2, 1
+                    text: 'date'
+                Label:
+                    id: op_date_label
+                    size_hint: .6, 1
+                Button:
+                    size_hint: .2, 1
+                    text: "choose"
+                    on_release:
+                        root.choose_date_btn()
+            OperationFieldLayout:
+                Label:
+                    size_hint: .2, 1
+                    text: 'mode'
+                TextInput:
+                    size_hint: .8, 1
+                    text: 'mode'
+            OperationFieldLayout:
+                Label:
+                    size_hint: .2, 1
+                    text: 'tier'
+                TextInput:
+                    size_hint: .8, 1
+                    text: 'tier'
+            OperationFieldLayout:
+                Label:
+                    size_hint: .2, 1
+                    text: 'category'
+                TextInput:
+                    size_hint: .8, 1
+                    text: 'category'
+            OperationFieldLayout:
+                Label:
+                    size_hint: .2, 1
+                    text: 'description'
+                TextInput:
+                    size_hint: .8, 1
+                    text: 'description'
+            OperationFieldLayout:
+                Label:
+                    size_hint: .2, 1
+                    text: 'amount'
+                TextInput:
+                    size_hint: .8, 1
+                    input_type: "number"
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, .1
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+            AnchorLayout:
+                anchor_x: 'left'
+                anchor_y: 'center'
+                canvas.before:
+                    Color:
+                        rgba: 1, 0, 0, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                Button:
+                    size_hint: .4, 1
+                    text: "cancel"
+                    on_release:
+                        root.cancel_btn()
+                        root.manager.transition.direction = "right"
+            AnchorLayout:
+                anchor_x: 'right'
+                anchor_y: 'center'
+                Button:
+                    size_hint: .4, 1
+                    text: "add"
+                    on_release:
+                        root.add_btn()
+                        root.manager.transition.direction = "right"
+
+<ReceiptListScreen>:
+    BoxLayout:
+        padding: 20
+        spacing: 20
+        orientation: 'vertical'
+        canvas.before:
+            Color:
+                rgba: 1, 0, 0, 1
+            Line:
+                width: 1
+                rectangle: self.x, self.y, self.width, self.height
+        Label:
+            size_hint: 1, .1
+            text: 'Receipt list'
+            font_size: "25dp"
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+            ReceiptListLayout:
+                orientation: "tb-lr"
+                size_hint: 1, None
+        AnchorLayout:
+            size_hint: 1, .1
+            anchor_x: 'right'
+            anchor_y: 'center'
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+            Button:
+                size_hint: .2, 1
+                text: "add"
+                on_release:
+                    root.add_btn()
+                    root.manager.transition.direction = "left"
