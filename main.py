@@ -1,14 +1,18 @@
 
+from os.path import expanduser
+
 import kivy
 kivy.require('2.3.0')
 
 from kivy.app import App
 from kivy.core.window import Window
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.stacklayout import StackLayout
-from kivy.uix.label import Label
 from kivy.lang import Builder
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.dropdown import DropDown
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
+from kivy.uix.stacklayout import StackLayout
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.textinput import TextInput
@@ -31,7 +35,7 @@ class AddReceiptScreen(Screen):
     def choose_date_btn(self):
         date_picker = DatePicker()
         date_picker.pHint=(0.7, 0.4)
-        date_picker.show_popup(None, True, self.date_picker_cb)
+        date_picker.show_popup(None, True, callback=self.date_picker_cb)
 
     def cancel_btn(self):
         screen_mgr.current = ReceiptListScreen.NAME
@@ -42,13 +46,15 @@ class AddReceiptScreen(Screen):
 class ReceiptListLayout(StackLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        with open("/media/pache/BE10F31710F2D57D1/Home/tech/dev/kivy/prj/bank_receipt_registerer/data/receiptList.txt", "r", encoding="utf8") as receipt_list_file:
+        with open(f"{expanduser('~')}/receiptList.txt", "r", encoding="utf8") as receipt_list_file:
             receipt_list_data = receipt_list_file.read()
             for receipt_line_data in receipt_list_data.splitlines():
                 receipt_label = Label(text=receipt_line_data)
                 receipt_label.size_hint = (1, None)
                 receipt_label.size = (100, 30)
                 receipt_label.halign = "left"
+                # box = BoxLayout()
+                # box.add_widget(receipt_label)
                 self.add_widget(receipt_label)
 
     def add_widget(self, widget, *args, **kwargs):

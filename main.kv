@@ -1,5 +1,5 @@
 
-<OperationFieldLayout@BoxLayout>
+<OperationField@BoxLayout>
     orientation: 'horizontal'
     canvas.before:
         Color:
@@ -7,6 +7,43 @@
         Line:
             width: 1
             rectangle: self.x, self.y, self.width, self.height
+
+<OperationMode@Button>
+    size_hint_y: None
+    height: 30
+
+<OperationFieldMode@OperationField>
+    Label:
+        size_hint: .2, 1
+        text: 'mode'
+    DropDown:
+        id: op_mode_drop
+        on_select: op_mode_btn.text = f'{args[1]}'
+        OperationMode:
+            id: op_mode_cb_btn
+            text: 'cb'
+            on_release: op_mode_drop.select(self.text)
+        OperationMode:
+            text: 'cb web'
+            on_release: op_mode_drop.select(self.text)
+        OperationMode:
+            text: 'paypal'
+            on_release: op_mode_drop.select(self.text)
+        OperationMode:
+            text: 'vir'
+            on_release: op_mode_drop.select(self.text)
+        OperationMode:
+            text: 'cash'
+            on_release: op_mode_drop.select(self.text)
+        OperationMode:
+            text: 'cheque'
+            on_release: op_mode_drop.select(self.text)
+    Button:
+        id: op_mode_btn
+        size_hint: .8, 1
+        text: op_mode_cb_btn.text
+        on_parent: op_mode_drop.dismiss()
+        on_release: op_mode_drop.open(self)
 
 <AddReceiptScreen>:
     BoxLayout:
@@ -41,7 +78,7 @@
                 Line:
                     width: 1
                     rectangle: self.x, self.y, self.width, self.height
-            OperationFieldLayout:
+            OperationField:
                 Label:
                     size_hint: .2, 1
                     text: 'date'
@@ -53,41 +90,36 @@
                     text: "choose"
                     on_release:
                         root.choose_date_btn()
-            OperationFieldLayout:
-                Label:
-                    size_hint: .2, 1
-                    text: 'mode'
-                TextInput:
-                    size_hint: .8, 1
-                    text: 'mode'
-            OperationFieldLayout:
+            OperationFieldMode
+            OperationField:
                 Label:
                     size_hint: .2, 1
                     text: 'tier'
                 TextInput:
                     size_hint: .8, 1
-                    text: 'tier'
-            OperationFieldLayout:
+                    hint_text: 'tier'
+            OperationField:
                 Label:
                     size_hint: .2, 1
                     text: 'category'
                 TextInput:
                     size_hint: .8, 1
-                    text: 'category'
-            OperationFieldLayout:
+                    hint_text: 'category'
+            OperationField:
                 Label:
                     size_hint: .2, 1
                     text: 'description'
                 TextInput:
                     size_hint: .8, 1
-                    text: 'description'
-            OperationFieldLayout:
+                    hint_text: 'description'
+            OperationField:
                 Label:
                     size_hint: .2, 1
                     text: 'amount'
                 TextInput:
                     size_hint: .8, 1
                     input_type: "number"
+                    hint_text: '0.0'
         BoxLayout:
             orientation: 'horizontal'
             size_hint: 1, .1
