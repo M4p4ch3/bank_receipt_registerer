@@ -12,8 +12,8 @@ import kivy
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.lang import Builder
-# from kivy.uix.boxlayout import BoxLayout
-# from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 # from kivy.uix.dropdown import DropDown
 # from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
@@ -21,6 +21,7 @@ from kivy.uix.label import Label
 # from kivy.uix.recycleview import RecycleView
 from kivy.uix.screenmanager import ScreenManager, Screen
 # from kivy.uix.textinput import TextInput
+# from kivy.uix.widget import Widget
 from KivyCalendar import DatePicker
 
 kivy.require('2.3.0')
@@ -91,6 +92,18 @@ class OpListMgr():
         self.op_list: List[Operation] = []
         self.load()
 
+    def add_operation(self, operation: Operation):
+        """Add operation"""
+        self.op_list += [operation]
+        # with open(f"{expanduser('~')}/{self.file_name}", mode="a", encoding="utf8") as op_list_file:
+        #     op_list_csv_writer = csv.DictWriter(op_list_file, fieldnames=Operation.CSV_KEY_LIST)
+        #     op_list_csv_writer.writerow(operation.as_csv())
+
+    def delete_operation(self, op_idx: int):
+        """Delete operation from index"""
+        if op_idx < len(self.op_list):
+            self.op_list.pop(op_idx)
+
     def load(self):
         """Load operations list from file"""
         self.op_list.clear()
@@ -98,13 +111,6 @@ class OpListMgr():
             op_list_csv_reader = csv.DictReader(op_list_file)
             for op_csv_entry in op_list_csv_reader:
                 self.op_list += [Operation.from_csv(op_csv_entry)]
-
-    def add_operation(self, operation: Operation):
-        """Add operation"""
-        self.op_list += [operation]
-        with open(f"{expanduser('~')}/{self.file_name}", mode="a", encoding="utf8") as op_list_file:
-            op_list_csv_writer = csv.DictWriter(op_list_file, fieldnames=Operation.CSV_KEY_LIST)
-            op_list_csv_writer.writerow(operation.as_csv())
 
     def save(self):
         """Save operations list to file"""
@@ -175,27 +181,50 @@ class AddOperationScreen(Screen):
 
         print(str(operation))
         op_list_mgr.add_operation(operation)
+        op_list_mgr.save()
         self.exit()
+
+class OpDeleteButton(Button):
+    """Operation delete button"""
+
+    def __init__(self, op_idx: int, **kwargs):
+        super().__init__(**kwargs)
+        self.op_idx = op_idx
+
+    def on_release(self):
+        op_list_mgr.delete_operation(self.op_idx)
+        op_list_mgr.save()
+        op_list_screen.reload()
+        return super().on_release()
+
+class OperationLayout(BoxLayout):
+    """Operation layout"""
+    def __init__(self, op_idx: int, op_str: str):
+        super().__init__()
+        self.orientation = "horizontal"
+        self.add_widget(Label(text=op_str))
+        self.add_widget(OpDeleteButton(op_idx, text="x", size_hint=(0.1, 1)))
 
 class OperationListScreen(Screen):
     """Operations list screen"""
 
     NAME = "operation_list"
 
-    def on_enter(self, *args):
-
+    def reload(self):
+        """Update operations list"""
         op_list_layout = self.ids["op_list_layout"]
         op_list_layout.clear_widgets()
         op_list_layout.height = 0
 
-        op_list_mgr.load()
-        for operation in op_list_mgr.op_list:
-            operation_label = Label(text=str(operation))
-            operation_label.size_hint = (1, None)
-            operation_label.size = (100, 30)
-            operation_label.halign = "left"
-            op_list_layout.add_widget(operation_label)
-            op_list_layout.height += operation_label.height
+        for (op_idx, operation) in enumerate(op_list_mgr.op_list):
+            operation_layout = OperationLayout(op_idx, str(operation))
+            operation_layout.size_hint = (1, None)
+            operation_layout.size = (100, 30)
+            op_list_layout.add_widget(operation_layout)
+            op_list_layout.height += operation_layout.height
+
+    def on_enter(self, *args):
+        self.reload()
 
     def add_btn_cb(self):
         """Add button callback"""
@@ -207,8 +236,10 @@ root_widget = Builder.load_file("main.kv")
 
 screen_mgr = ScreenManager()
 
+op_list_screen = OperationListScreen(name=OperationListScreen.NAME)
+
 screen_list = [
-    OperationListScreen(name=OperationListScreen.NAME),
+    op_list_screen,
     AddOperationScreen(name=AddOperationScreen.NAME)
 ]
 
