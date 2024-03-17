@@ -6,6 +6,7 @@ import csv
 # from dataclasses import dataclass
 from datetime import datetime
 # from enum import Enum
+import logging
 from os.path import expanduser
 # from typing import Any
 from typing import List
@@ -14,6 +15,7 @@ import kivy
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.lang import Builder
+from kivy.logger import Logger
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 # from kivy.uix.dropdown import DropDown
@@ -49,8 +51,8 @@ class Operation:
 
     TIME_FMT = "%Y-%m-%d"
 
-    def __init__(self, date: datetime, mode: str, tier: str,
-        category: str, description: str, amount: float):
+    def __init__(self, date: datetime = datetime.now(), mode: str = "", tier: str = "",
+        category: str = "", description: str = "", amount: float = 0.0):
 
         self.date = date
         self.mode = mode
@@ -92,22 +94,22 @@ class OpListMgr():
     def __init__(self, file_name: str):
         self.file_name = file_name
         self.op_list: List[Operation] = []
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.load()
 
     def add_operation(self, operation: Operation):
         """Add operation"""
+        self.logger.debug("OpListMgr: add Operation(%s)", operation)
         self.op_list += [operation]
-        # with open(f"{expanduser('~')}/{self.file_name}", mode="a", encoding="utf8") as op_list_file:
-        #     op_list_csv_writer = csv.DictWriter(op_list_file, fieldnames=Operation.CSV_KEY_LIST)
-        #     op_list_csv_writer.writerow(operation.as_csv())
 
-    def delete_operation(self, op_idx: int):
-        """Delete operation from index"""
-        if op_idx < len(self.op_list):
-            self.op_list.pop(op_idx)
+    def delete_operation(self, operation: Operation):
+        """Delete operation"""
+        self.logger.debug("OpListMgr: delete Operation(%s)", operation)
+        self.op_list.remove(operation)
 
     def load(self):
         """Load operations list from file"""
+        self.logger.debug("OpListMgr: load")
         self.op_list.clear()
         with open(f"{expanduser('~')}/{self.file_name}", mode="r", encoding="utf8") as op_list_file:
             op_list_csv_reader = csv.DictReader(op_list_file)
@@ -116,23 +118,31 @@ class OpListMgr():
 
     def save(self):
         """Save operations list to file"""
+        self.logger.debug("OpListMgr: save")
         with open(f"{expanduser('~')}/{self.file_name}", mode="w", encoding="utf8") as op_list_file:
             op_list_csv_writer = csv.DictWriter(op_list_file, fieldnames=Operation.CSV_KEY_LIST)
             op_list_csv_writer.writeheader()
             for operation in self.op_list:
                 op_list_csv_writer.writerow(operation.as_csv())
 
-class AddOperationScreen(Screen):
-    """Add operation screen"""
+class OperationScreen(Screen):
+    """Operation screen"""
 
-    NAME = "add_operation"
+    NAME = "operation"
 
     def __init__(self, app: BankOperationRegisterer, **kwargs):
         super().__init__(**kwargs)
+
         self.app = app
+        self.operation: Operation | None = None
+
         date_picker = DatePicker()
-        date_str = date_picker.get_today_date()
-        self.ids["date_label_val"].text = f"{date_str[6:10]}-{date_str[3:5]}-{date_str[0:2]}"
+        today_date_str = date_picker.get_today_date()
+        self.today_date_str = f"{today_date_str[6:10]}-{today_date_str[3:5]}-{today_date_str[0:2]}"
+
+    def on_enter(self, *args):
+        self.set_fields()
+        super().on_enter(*args)
 
     def date_picker_cb(self, date_list):
         """Date picket callback setting label text"""
@@ -145,24 +155,43 @@ class AddOperationScreen(Screen):
         date_picker.pHint=(0.7, 0.4)
         date_picker.show_popup(None, True, callback=self.date_picker_cb)
 
-    def clear(self):
-        """Clear all operation fields"""
-        self.ids["mode"].ids["button"].text = self.ids["mode"].ids["cb"].text
+    def reset_fields(self):
+        """Reset all operation fields"""
+        self.ids["date_label_val"].text = self.today_date_str
+        # Cant rely on mode/cb as resulring in ReferenceError
+        self.ids["mode"].ids["button"].text = "cb" # self.ids["mode"].ids["cb"].text
         self.ids["tier_input"].text = ""
         self.ids["cat_input"].text = ""
         self.ids["desc_input"].text = ""
 
+    def set_fields(self):
+        """Set all operations fields"""
+
+        self.reset_fields()
+
+        if not self.operation:
+            return
+
+        self.ids["date_label_val"].text = self.operation.date.strftime(Operation.TIME_FMT)
+        if self.operation.mode != "":
+            self.ids["mode"].ids["button"].text = self.operation.mode
+        self.ids["tier_input"].text = self.operation.tier
+        self.ids["cat_input"].text = self.operation.category
+        self.ids["desc_input"].text = self.operation.description
+        if self.operation.amount != 0.0:
+            self.ids["amount_input"].text = self.operation.amount
+
     def exit(self):
         """Go back to operations list screen"""
-        self.clear()
+        self.operation = None
         self.app.screen_mgr.current = OperationListScreen.NAME
 
     def cancel_btn_cb(self):
         """Cancel button callback"""
         self.exit()
 
-    def add_btn_cb(self):
-        """Add button callback"""
+    def save_btn_cb(self):
+        """Save button callback"""
 
         amount = 0.0
         try:
@@ -179,32 +208,47 @@ class AddOperationScreen(Screen):
             amount,
         )
 
-        print(str(operation))
+        if self.operation:
+            self.app.op_list_mgr.delete_operation(self.operation)
         self.app.op_list_mgr.add_operation(operation)
         self.app.op_list_mgr.save()
         self.exit()
 
+class OpEditButton(Button):
+    """Operation edit button"""
+
+    def __init__(self, app: BankOperationRegisterer, operation: Operation, **kwargs):
+        super().__init__(**kwargs)
+        self.app = app
+        self.operation = operation
+
+    def on_release(self):
+        self.app.op_screen.operation = self.operation
+        self.app.screen_mgr.current = OperationScreen.NAME
+        super().on_release()
+
 class OpDeleteButton(Button):
     """Operation delete button"""
 
-    def __init__(self, app: BankOperationRegisterer, op_idx: int, **kwargs):
+    def __init__(self, app: BankOperationRegisterer, operation: Operation, **kwargs):
         super().__init__(**kwargs)
         self.app = app
-        self.op_idx = op_idx
+        self.operation = operation
 
     def on_release(self):
-        self.app.op_list_mgr.delete_operation(self.op_idx)
+        self.app.op_list_mgr.delete_operation(self.operation)
         self.app.op_list_mgr.save()
         self.app.op_list_screen.reload()
-        return super().on_release()
+        super().on_release()
 
 class OperationLayout(BoxLayout):
     """Operation layout"""
-    def __init__(self, app: BankOperationRegisterer, op_idx: int, op_str: str):
+    def __init__(self, app: BankOperationRegisterer, operation: Operation):
         super().__init__()
         self.orientation = "horizontal"
-        self.add_widget(Label(text=op_str))
-        self.add_widget(OpDeleteButton(app, op_idx, text="x", size_hint=(0.1, 1)))
+        self.add_widget(Label(text=str(operation)))
+        self.add_widget(OpEditButton(app, operation, text="edit", size_hint=(0.3, 1)))
+        self.add_widget(OpDeleteButton(app, operation, text="x", size_hint=(0.1, 1)))
 
 class OperationListScreen(Screen):
     """Operations list screen"""
@@ -214,15 +258,17 @@ class OperationListScreen(Screen):
     def __init__(self, app: BankOperationRegisterer, **kwargs):
         super().__init__(**kwargs)
         self.app = app
+        self.logger = logging.getLogger(self.__class__.__name__)
 
     def reload(self):
         """Update operations list"""
+        self.logger.debug("OperationListScreen: reload")
         op_list_layout = self.ids["op_list_layout"]
         op_list_layout.clear_widgets()
         op_list_layout.height = 0
 
-        for (op_idx, operation) in enumerate(self.app.op_list_mgr.op_list):
-            operation_layout = OperationLayout(self.app, op_idx, str(operation))
+        for operation in self.app.op_list_mgr.op_list:
+            operation_layout = OperationLayout(self.app, operation)
             operation_layout.size_hint = (1, None)
             operation_layout.size = (100, 30)
             op_list_layout.add_widget(operation_layout)
@@ -230,10 +276,11 @@ class OperationListScreen(Screen):
 
     def on_enter(self, *args):
         self.reload()
+        super().on_enter(*args)
 
     def add_btn_cb(self):
         """Add button callback"""
-        self.app.screen_mgr.current = AddOperationScreen.NAME
+        self.app.screen_mgr.current = OperationScreen.NAME
 
 Window.size = (500, 700)
 
@@ -248,10 +295,11 @@ class BankOperationRegisterer(App):
         self.op_list_mgr = OpListMgr("operation_list.csv")
         self.screen_mgr = ScreenManager()
         self.op_list_screen = OperationListScreen(self, name=OperationListScreen.NAME)
+        self.op_screen = OperationScreen(self, name=OperationScreen.NAME)
 
         screen_list = [
             self.op_list_screen,
-            AddOperationScreen(self, name=AddOperationScreen.NAME)
+            self.op_screen,
         ]
 
         for screen in screen_list:
@@ -264,6 +312,7 @@ class BankOperationRegisterer(App):
 
 def main():
     """Main"""
+    logging.basicConfig(level=logging.DEBUG)
     bank_op_register = BankOperationRegisterer()
     bank_op_register.run()
 

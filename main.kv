@@ -45,7 +45,7 @@
         on_parent: drop.dismiss()
         on_release: drop.open(self)
 
-<AddOperationScreen>:
+<OperationScreen>:
     BoxLayout:
         padding: 20
         spacing: 20
@@ -59,7 +59,7 @@
         orientation: 'vertical'
         Label:
             size_hint: 1, .1
-            text: 'Add operation'
+            text: 'Operation'
             font_size: "25dp"
             canvas.before:
                 Color:
@@ -154,9 +154,9 @@
                 anchor_y: 'center'
                 Button:
                     size_hint: .4, 1
-                    text: "add"
+                    text: "save"
                     on_release:
-                        root.add_btn_cb()
+                        root.save_btn_cb()
                         root.manager.transition.direction = "right"
 
 <OperationListScreen>:
