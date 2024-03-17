@@ -17,33 +17,33 @@
         size_hint: .2, 1
         text: 'mode'
     DropDown:
-        id: op_mode_drop
-        on_select: op_mode_btn.text = f'{args[1]}'
+        id: drop
+        on_select: button.text = f'{args[1]}'
         OperationMode:
-            id: op_mode_cb_btn
+            id: cb
             text: 'cb'
-            on_release: op_mode_drop.select(self.text)
+            on_release: drop.select(self.text)
         OperationMode:
             text: 'cb web'
-            on_release: op_mode_drop.select(self.text)
+            on_release: drop.select(self.text)
         OperationMode:
             text: 'paypal'
-            on_release: op_mode_drop.select(self.text)
+            on_release: drop.select(self.text)
         OperationMode:
             text: 'vir'
-            on_release: op_mode_drop.select(self.text)
+            on_release: drop.select(self.text)
         OperationMode:
             text: 'cash'
-            on_release: op_mode_drop.select(self.text)
+            on_release: drop.select(self.text)
         OperationMode:
             text: 'cheque'
-            on_release: op_mode_drop.select(self.text)
+            on_release: drop.select(self.text)
     Button:
-        id: op_mode_btn
+        id: button
         size_hint: .8, 1
-        text: op_mode_cb_btn.text
-        on_parent: op_mode_drop.dismiss()
-        on_release: op_mode_drop.open(self)
+        text: cb.text
+        on_parent: drop.dismiss()
+        on_release: drop.open(self)
 
 <AddReceiptScreen>:
     BoxLayout:
@@ -83,7 +83,7 @@
                     size_hint: .2, 1
                     text: 'date'
                 Label:
-                    id: op_date_label
+                    id: date_label_val
                     size_hint: .6, 1
                 Button:
                     size_hint: .2, 1
@@ -91,11 +91,13 @@
                     on_release:
                         root.choose_date_btn()
             OperationFieldMode
+                id: mode
             OperationField:
                 Label:
                     size_hint: .2, 1
                     text: 'tier'
                 TextInput:
+                    id: tier_input
                     size_hint: .8, 1
                     hint_text: 'tier'
             OperationField:
@@ -103,6 +105,7 @@
                     size_hint: .2, 1
                     text: 'category'
                 TextInput:
+                    id: cat_input
                     size_hint: .8, 1
                     hint_text: 'category'
             OperationField:
@@ -110,6 +113,7 @@
                     size_hint: .2, 1
                     text: 'description'
                 TextInput:
+                    id: desc_input
                     size_hint: .8, 1
                     hint_text: 'description'
             OperationField:
@@ -117,6 +121,7 @@
                     size_hint: .2, 1
                     text: 'amount'
                 TextInput:
+                    id: amount_input
                     size_hint: .8, 1
                     input_type: "number"
                     hint_text: '0.0'
@@ -184,7 +189,8 @@
                 Line:
                     width: 1
                     rectangle: self.x, self.y, self.width, self.height
-            ReceiptListLayout:
+            StackLayout:
+                id: op_list_layout
                 orientation: "tb-lr"
                 size_hint: 1, None
         AnchorLayout:
