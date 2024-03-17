@@ -1,5 +1,7 @@
 """Bank operation registerer app main"""
 
+from __future__ import annotations
+
 import csv
 # from dataclasses import dataclass
 from datetime import datetime
@@ -120,16 +122,14 @@ class OpListMgr():
             for operation in self.op_list:
                 op_list_csv_writer.writerow(operation.as_csv())
 
-op_list_mgr = OpListMgr("operation_list.csv")
-
 class AddOperationScreen(Screen):
     """Add operation screen"""
 
     NAME = "add_operation"
 
-    def __init__(self, **kwargs):
+    def __init__(self, app: BankOperationRegisterer, **kwargs):
         super().__init__(**kwargs)
-
+        self.app = app
         date_picker = DatePicker()
         date_str = date_picker.get_today_date()
         self.ids["date_label_val"].text = f"{date_str[6:10]}-{date_str[3:5]}-{date_str[0:2]}"
@@ -155,7 +155,7 @@ class AddOperationScreen(Screen):
     def exit(self):
         """Go back to operations list screen"""
         self.clear()
-        screen_mgr.current = OperationListScreen.NAME
+        self.app.screen_mgr.current = OperationListScreen.NAME
 
     def cancel_btn_cb(self):
         """Cancel button callback"""
@@ -180,35 +180,40 @@ class AddOperationScreen(Screen):
         )
 
         print(str(operation))
-        op_list_mgr.add_operation(operation)
-        op_list_mgr.save()
+        self.app.op_list_mgr.add_operation(operation)
+        self.app.op_list_mgr.save()
         self.exit()
 
 class OpDeleteButton(Button):
     """Operation delete button"""
 
-    def __init__(self, op_idx: int, **kwargs):
+    def __init__(self, app: BankOperationRegisterer, op_idx: int, **kwargs):
         super().__init__(**kwargs)
+        self.app = app
         self.op_idx = op_idx
 
     def on_release(self):
-        op_list_mgr.delete_operation(self.op_idx)
-        op_list_mgr.save()
-        op_list_screen.reload()
+        self.app.op_list_mgr.delete_operation(self.op_idx)
+        self.app.op_list_mgr.save()
+        self.app.op_list_screen.reload()
         return super().on_release()
 
 class OperationLayout(BoxLayout):
     """Operation layout"""
-    def __init__(self, op_idx: int, op_str: str):
+    def __init__(self, app: BankOperationRegisterer, op_idx: int, op_str: str):
         super().__init__()
         self.orientation = "horizontal"
         self.add_widget(Label(text=op_str))
-        self.add_widget(OpDeleteButton(op_idx, text="x", size_hint=(0.1, 1)))
+        self.add_widget(OpDeleteButton(app, op_idx, text="x", size_hint=(0.1, 1)))
 
 class OperationListScreen(Screen):
     """Operations list screen"""
 
     NAME = "operation_list"
+
+    def __init__(self, app: BankOperationRegisterer, **kwargs):
+        super().__init__(**kwargs)
+        self.app = app
 
     def reload(self):
         """Update operations list"""
@@ -216,8 +221,8 @@ class OperationListScreen(Screen):
         op_list_layout.clear_widgets()
         op_list_layout.height = 0
 
-        for (op_idx, operation) in enumerate(op_list_mgr.op_list):
-            operation_layout = OperationLayout(op_idx, str(operation))
+        for (op_idx, operation) in enumerate(self.app.op_list_mgr.op_list):
+            operation_layout = OperationLayout(self.app, op_idx, str(operation))
             operation_layout.size_hint = (1, None)
             operation_layout.size = (100, 30)
             op_list_layout.add_widget(operation_layout)
@@ -228,30 +233,39 @@ class OperationListScreen(Screen):
 
     def add_btn_cb(self):
         """Add button callback"""
-        screen_mgr.current = AddOperationScreen.NAME
+        self.app.screen_mgr.current = AddOperationScreen.NAME
 
 Window.size = (500, 700)
 
 root_widget = Builder.load_file("main.kv")
 
-screen_mgr = ScreenManager()
-
-op_list_screen = OperationListScreen(name=OperationListScreen.NAME)
-
-screen_list = [
-    op_list_screen,
-    AddOperationScreen(name=AddOperationScreen.NAME)
-]
-
-for screen in screen_list:
-    screen_mgr.add_widget(screen)
-
-screen_mgr.current = OperationListScreen.NAME
-
 class BankOperationRegisterer(App):
     """Bank operation registerer app"""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.op_list_mgr = OpListMgr("operation_list.csv")
+        self.screen_mgr = ScreenManager()
+        self.op_list_screen = OperationListScreen(self, name=OperationListScreen.NAME)
+
+        screen_list = [
+            self.op_list_screen,
+            AddOperationScreen(self, name=AddOperationScreen.NAME)
+        ]
+
+        for screen in screen_list:
+            self.screen_mgr.add_widget(screen)
+
+        self.screen_mgr.current = OperationListScreen.NAME
+
     def build(self):
-        return screen_mgr
+        return self.screen_mgr
+
+def main():
+    """Main"""
+    bank_op_register = BankOperationRegisterer()
+    bank_op_register.run()
 
 if __name__ == "__main__":
-    BankOperationRegisterer().run()
+    main()
