@@ -1,4 +1,4 @@
-"""Operation registerer app main"""
+"""Bank operation registerer app main"""
 
 import csv
 # from dataclasses import dataclass
@@ -116,8 +116,10 @@ class OpListMgr():
 
 op_list_mgr = OpListMgr("operation_list.csv")
 
-class AddReceiptScreen(Screen):
-    NAME = "add_receipt"
+class AddOperationScreen(Screen):
+    """Add operation screen"""
+
+    NAME = "add_operation"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -127,28 +129,34 @@ class AddReceiptScreen(Screen):
         self.ids["date_label_val"].text = f"{date_str[6:10]}-{date_str[3:5]}-{date_str[0:2]}"
 
     def date_picker_cb(self, date_list):
+        """Date picket callback setting label text"""
         date_str = f"{date_list[2]:04d}-{date_list[1]:02d}-{date_list[0]:02d}"
         self.ids["date_label_val"].text = date_str
 
-    def choose_date_btn(self):
+    def choose_date_btn_cb(self):
+        """Date choose button callback"""
         date_picker = DatePicker()
         date_picker.pHint=(0.7, 0.4)
         date_picker.show_popup(None, True, callback=self.date_picker_cb)
 
     def clear(self):
+        """Clear all operation fields"""
         self.ids["mode"].ids["button"].text = self.ids["mode"].ids["cb"].text
         self.ids["tier_input"].text = ""
         self.ids["cat_input"].text = ""
         self.ids["desc_input"].text = ""
 
     def exit(self):
+        """Go back to operations list screen"""
         self.clear()
-        screen_mgr.current = ReceiptListScreen.NAME
+        screen_mgr.current = OperationListScreen.NAME
 
-    def cancel_btn(self):
+    def cancel_btn_cb(self):
+        """Cancel button callback"""
         self.exit()
 
-    def add_btn(self):
+    def add_btn_cb(self):
+        """Add button callback"""
 
         amount = 0.0
         try:
@@ -169,8 +177,10 @@ class AddReceiptScreen(Screen):
         op_list_mgr.add_operation(operation)
         self.exit()
 
-class ReceiptListScreen(Screen):
-    NAME = "receipt_list"
+class OperationListScreen(Screen):
+    """Operations list screen"""
+
+    NAME = "operation_list"
 
     def on_enter(self, *args):
 
@@ -180,15 +190,16 @@ class ReceiptListScreen(Screen):
 
         op_list_mgr.load()
         for operation in op_list_mgr.op_list:
-            receipt_label = Label(text=str(operation))
-            receipt_label.size_hint = (1, None)
-            receipt_label.size = (100, 30)
-            receipt_label.halign = "left"
-            op_list_layout.add_widget(receipt_label)
-            op_list_layout.height += receipt_label.height
+            operation_label = Label(text=str(operation))
+            operation_label.size_hint = (1, None)
+            operation_label.size = (100, 30)
+            operation_label.halign = "left"
+            op_list_layout.add_widget(operation_label)
+            op_list_layout.height += operation_label.height
 
-    def add_btn(self):
-        screen_mgr.current = AddReceiptScreen.NAME
+    def add_btn_cb(self):
+        """Add button callback"""
+        screen_mgr.current = AddOperationScreen.NAME
 
 Window.size = (500, 700)
 
@@ -196,15 +207,20 @@ root_widget = Builder.load_file("main.kv")
 
 screen_mgr = ScreenManager()
 
-screen_list = [ReceiptListScreen(name=ReceiptListScreen.NAME), AddReceiptScreen(name=AddReceiptScreen.NAME)]
+screen_list = [
+    OperationListScreen(name=OperationListScreen.NAME),
+    AddOperationScreen(name=AddOperationScreen.NAME)
+]
+
 for screen in screen_list:
     screen_mgr.add_widget(screen)
 
-screen_mgr.current = ReceiptListScreen.NAME
+screen_mgr.current = OperationListScreen.NAME
 
-class BankReceiptRegisterer(App):
+class BankOperationRegisterer(App):
+    """Bank operation registerer app"""
     def build(self):
         return screen_mgr
 
 if __name__ == "__main__":
-    BankReceiptRegisterer().run()
+    BankOperationRegisterer().run()
