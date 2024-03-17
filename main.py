@@ -15,7 +15,7 @@ import kivy
 from kivy.app import App
 from kivy.core.window import Window
 from kivy.lang import Builder
-from kivy.logger import Logger
+# from kivy.logger import Logger
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 # from kivy.uix.dropdown import DropDown
@@ -26,6 +26,7 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen
 # from kivy.uix.textinput import TextInput
 # from kivy.uix.widget import Widget
+from kivy.uix.popup import Popup
 from KivyCalendar import DatePicker
 
 kivy.require('2.3.0')
@@ -158,7 +159,7 @@ class OperationScreen(Screen):
     def reset_fields(self):
         """Reset all operation fields"""
         self.ids["date_label_val"].text = self.today_date_str
-        # Cant rely on mode/cb as resulring in ReferenceError
+        # Cant rely on mode/cb as resulting in ReferenceError
         self.ids["mode"].ids["button"].text = "cb" # self.ids["mode"].ids["cb"].text
         self.ids["tier_input"].text = ""
         self.ids["cat_input"].text = ""
@@ -227,6 +228,24 @@ class OpEditButton(Button):
         self.app.screen_mgr.current = OperationScreen.NAME
         super().on_release()
 
+class ConfirmPopup(Popup):
+    """Confirmation popup"""
+
+    def __init__(self, title: str):
+        super().__init__(title=title, size_hint=(None, None), size=(300, 100))
+        self.status = False
+        layout = BoxLayout()
+        layout.orientation = "horizontal"
+        layout.add_widget(Button(text="Cancel", size_hint=(0.3, 1), on_release=self.dismiss))
+        layout.add_widget(Button(text="Confirm", size_hint=(0.3, 1), on_release=self.confirm))
+        self.content = layout
+
+    def confirm(self, dt):
+        """Confirm"""
+        _ = dt
+        self.status = True
+        self.dismiss()
+
 class OpDeleteButton(Button):
     """Operation delete button"""
 
@@ -234,11 +253,18 @@ class OpDeleteButton(Button):
         super().__init__(**kwargs)
         self.app = app
         self.operation = operation
+        self.confirm_popup = ConfirmPopup("Delete operation")
+        self.confirm_popup.on_dismiss=self.confirm_popup_dismiss_cb
+
+    def confirm_popup_dismiss_cb(self):
+        """Confirmation popup dismiss callback"""
+        if self.confirm_popup.status:
+            self.app.op_list_mgr.delete_operation(self.operation)
+            self.app.op_list_mgr.save()
+            self.app.op_list_screen.reload()
 
     def on_release(self):
-        self.app.op_list_mgr.delete_operation(self.operation)
-        self.app.op_list_mgr.save()
-        self.app.op_list_screen.reload()
+        self.confirm_popup.open()
         super().on_release()
 
 class OperationLayout(BoxLayout):
