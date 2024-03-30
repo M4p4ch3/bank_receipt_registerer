@@ -7,12 +7,13 @@ import csv
 from datetime import datetime
 # from enum import Enum
 import logging
-from os.path import expanduser
+from os.path import expanduser, dirname, join
 # from typing import Any
 from typing import List
 
 import kivy
 from kivy.app import App
+# from kivy.app import App, user_data_dir
 from kivy.core.window import Window
 from kivy.lang import Builder
 # from kivy.logger import Logger
@@ -27,7 +28,14 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 # from kivy.uix.textinput import TextInput
 # from kivy.uix.widget import Widget
 from kivy.uix.popup import Popup
-from KivyCalendar import DatePicker
+from kivy.utils import platform
+
+from kivy_calendar.calendar_ui import DatePicker
+
+if platform == 'android':
+    import android
+    from android.permissions import Permission, request_permissions, check_permission
+    from android.storage import app_storage_path, primary_external_storage_path, secondary_external_storage_path
 
 kivy.require('2.3.0')
 
@@ -110,9 +118,24 @@ class OpListMgr():
 
     def load(self):
         """Load operations list from file"""
+
         self.logger.debug("OpListMgr: load")
         self.op_list.clear()
-        with open(f"{expanduser('~')}/{self.file_name}", mode="r", encoding="utf8") as op_list_file:
+
+        if platform == 'android':
+            self.file_dir_path = primary_external_storage_path()
+        else:
+            self.file_dir_path = expanduser('~')
+
+        print(f"OpListMgr: self.file_name = {self.file_name}")
+        print(f"OpListMgr: self.file_dir_path = {self.file_dir_path}")
+        # return
+
+        # Ensure file exists by open in write mode
+        with open(f"{self.file_dir_path}/{self.file_name}", mode="a", encoding="utf8"):
+            pass
+
+        with open(f"{self.file_dir_path}/{self.file_name}", mode="r", encoding="utf8") as op_list_file:
             op_list_csv_reader = csv.DictReader(op_list_file)
             for op_csv_entry in op_list_csv_reader:
                 self.op_list += [Operation.from_csv(op_csv_entry)]
@@ -120,7 +143,7 @@ class OpListMgr():
     def save(self):
         """Save operations list to file"""
         self.logger.debug("OpListMgr: save")
-        with open(f"{expanduser('~')}/{self.file_name}", mode="w", encoding="utf8") as op_list_file:
+        with open(f"{self.file_dir_path}/{self.file_name}", mode="w", encoding="utf8") as op_list_file:
             op_list_csv_writer = csv.DictWriter(op_list_file, fieldnames=Operation.CSV_KEY_LIST)
             op_list_csv_writer.writeheader()
             for operation in self.op_list:
@@ -316,6 +339,7 @@ class BankOperationRegisterer(App):
     """Bank operation registerer app"""
 
     def __init__(self, **kwargs):
+        print("BankOperationRegisterer: __init__")
         super().__init__(**kwargs)
 
         self.op_list_mgr = OpListMgr("operation_list.csv")
@@ -339,8 +363,24 @@ class BankOperationRegisterer(App):
 def main():
     """Main"""
     logging.basicConfig(level=logging.DEBUG)
+    print("main: BankOperationRegisterer")
     bank_op_register = BankOperationRegisterer()
+    print("main: bank_op_register run")
     bank_op_register.run()
 
+def check_permissions(perm_list):
+    """Check permissions list"""
+    for perm in perm_list:
+        if not check_permission(perm):
+            return False
+    return True
+
 if __name__ == "__main__":
+    print("main")
+    if platform == 'android':
+        perms = [Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE]
+        if not check_permissions(perms):
+            request_permissions(perms)
+            exit()
     main()
+
