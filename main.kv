@@ -10,11 +10,11 @@
 
 <OperationMode@Button>
     size_hint_y: None
-    height: 30
+    height: "35dp"
 
 <OperationFieldMode@OperationField>
     Label:
-        size_hint: .2, 1
+        size_hint: .3, 1
         text: 'mode'
     DropDown:
         id: drop
@@ -40,22 +40,22 @@
             on_release: drop.select(self.text)
     Button:
         id: button
-        size_hint: .8, 1
+        size_hint: .7, 1
         text: cb.text
         on_parent: drop.dismiss()
         on_release: drop.open(self)
 
 <OperationScreen>:
     BoxLayout:
-        padding: 20
-        spacing: 20
+        padding: "10dp"
+        spacing: "10dp"
         canvas.before:
             Color:
                 rgba: 1, 0, 0, 1
             Line:
                 width: 1
                 rectangle: self.x, self.y, self.width, self.height
-        padding: 20
+        padding: "10dp"
         orientation: 'vertical'
         Label:
             size_hint: 1, .1
@@ -68,9 +68,9 @@
                     width: 1
                     rectangle: self.x, self.y, self.width, self.height
         GridLayout:
-            spacing: 10
+            spacing: "10dp"
             cols: 1
-            row_default_height: 30
+            row_default_height: "35dp"
             row_force_default: "True"
             canvas.before:
                 Color:
@@ -80,11 +80,11 @@
                     rectangle: self.x, self.y, self.width, self.height
             OperationField:
                 Label:
-                    size_hint: .2, 1
+                    size_hint: .3, 1
                     text: 'date'
                 Label:
                     id: date_label_val
-                    size_hint: .6, 1
+                    size_hint: .5, 1
                 Button:
                     size_hint: .2, 1
                     text: "choose"
@@ -94,35 +94,35 @@
                 id: mode
             OperationField:
                 Label:
-                    size_hint: .2, 1
+                    size_hint: .3, 1
                     text: 'tier'
                 TextInput:
                     id: tier_input
-                    size_hint: .8, 1
+                    size_hint: .7, 1
                     hint_text: 'tier'
             OperationField:
                 Label:
-                    size_hint: .2, 1
+                    size_hint: .3, 1
                     text: 'category'
                 TextInput:
                     id: cat_input
-                    size_hint: .8, 1
+                    size_hint: .7, 1
                     hint_text: 'category'
             OperationField:
                 Label:
-                    size_hint: .2, 1
+                    size_hint: .3, 1
                     text: 'description'
                 TextInput:
                     id: desc_input
-                    size_hint: .8, 1
+                    size_hint: .7, 1
                     hint_text: 'description'
             OperationField:
                 Label:
-                    size_hint: .2, 1
+                    size_hint: .3, 1
                     text: 'amount'
                 TextInput:
                     id: amount_input
-                    size_hint: .8, 1
+                    size_hint: .7, 1
                     input_type: "number"
                     hint_text: '0.0'
         BoxLayout:
@@ -161,8 +161,8 @@
 
 <OperationListScreen>:
     BoxLayout:
-        padding: 20
-        spacing: 20
+        padding: "10dp"
+        spacing: "10dp"
         orientation: 'vertical'
         canvas.before:
             Color:

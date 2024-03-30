@@ -17,6 +17,7 @@ from kivy.app import App
 from kivy.core.window import Window
 from kivy.lang import Builder
 # from kivy.logger import Logger
+from kivy.metrics import dp, sp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 # from kivy.uix.dropdown import DropDown
@@ -128,8 +129,9 @@ class OpListMgr():
             self.file_dir_path = expanduser('~')
 
         print(f"OpListMgr: self.file_name = {self.file_name}")
+        self.logger.info("OpListMgr: self.file_name = %s", self.file_name)
         print(f"OpListMgr: self.file_dir_path = {self.file_dir_path}")
-        # return
+        self.logger.info("OpListMgr: self.file_dir_path = %s", self.file_dir_path)
 
         # Ensure file exists by open in write mode
         with open(f"{self.file_dir_path}/{self.file_name}", mode="a", encoding="utf8"):
@@ -255,7 +257,7 @@ class ConfirmPopup(Popup):
     """Confirmation popup"""
 
     def __init__(self, title: str):
-        super().__init__(title=title, size_hint=(None, None), size=(300, 100))
+        super().__init__(title=title, size_hint=(None, None), size=(dp(300), dp(150)))
         self.status = False
         layout = BoxLayout()
         layout.orientation = "horizontal"
@@ -297,7 +299,7 @@ class OperationLayout(BoxLayout):
         self.orientation = "horizontal"
         self.add_widget(Label(text=str(operation)))
         self.add_widget(OpEditButton(app, operation, text="edit", size_hint=(0.3, 1)))
-        self.add_widget(OpDeleteButton(app, operation, text="x", size_hint=(0.1, 1)))
+        self.add_widget(OpDeleteButton(app, operation, text="x", size_hint=(0.15, 1)))
 
 class OperationListScreen(Screen):
     """Operations list screen"""
@@ -319,7 +321,7 @@ class OperationListScreen(Screen):
         for operation in self.app.op_list_mgr.op_list:
             operation_layout = OperationLayout(self.app, operation)
             operation_layout.size_hint = (1, None)
-            operation_layout.size = (100, 30)
+            operation_layout.size = (1, dp(35))
             op_list_layout.add_widget(operation_layout)
             op_list_layout.height += operation_layout.height
 
@@ -331,7 +333,10 @@ class OperationListScreen(Screen):
         """Add button callback"""
         self.app.screen_mgr.current = OperationScreen.NAME
 
-Window.size = (500, 700)
+# Window.size = (500, 700)
+# from kivy.config import Config
+# Config.set('graphics', 'width', '720')
+# Config.set('graphics', 'height', '1280')
 
 root_widget = Builder.load_file("main.kv")
 
@@ -339,7 +344,6 @@ class BankOperationRegisterer(App):
     """Bank operation registerer app"""
 
     def __init__(self, **kwargs):
-        print("BankOperationRegisterer: __init__")
         super().__init__(**kwargs)
 
         self.op_list_mgr = OpListMgr("operation_list.csv")
@@ -363,9 +367,7 @@ class BankOperationRegisterer(App):
 def main():
     """Main"""
     logging.basicConfig(level=logging.DEBUG)
-    print("main: BankOperationRegisterer")
     bank_op_register = BankOperationRegisterer()
-    print("main: bank_op_register run")
     bank_op_register.run()
 
 def check_permissions(perm_list):
@@ -376,11 +378,9 @@ def check_permissions(perm_list):
     return True
 
 if __name__ == "__main__":
-    print("main")
     if platform == 'android':
         perms = [Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE]
         if not check_permissions(perms):
             request_permissions(perms)
             exit()
     main()
-
