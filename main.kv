@@ -1,5 +1,5 @@
 
-<OperationField@BoxLayout>
+<OpField@BoxLayout>
     orientation: 'horizontal'
     canvas.before:
         Color:
@@ -8,7 +8,7 @@
             width: 1
             rectangle: self.x, self.y, self.width, self.height
 
-<OperationScreen>:
+<OpScreen>:
     BoxLayout:
         padding: "10dp"
         spacing: "10dp"
@@ -41,7 +41,7 @@
                 Line:
                     width: 1
                     rectangle: self.x, self.y, self.width, self.height
-            OperationField:
+            OpField:
                 Label:
                     size_hint: .25, 1
                     text: 'date'
@@ -53,9 +53,9 @@
                     text: "choose"
                     on_release:
                         root.choose_date_btn_cb()
-            OperationFieldMode
+            OpModeField:
                 id: mode
-            OperationField:
+            OpField:
                 Label:
                     size_hint: .25, 1
                     text: 'tier'
@@ -63,7 +63,7 @@
                     id: tier_input
                     size_hint: .75, 1
                     hint_text: 'tier'
-            OperationField:
+            OpField:
                 Label:
                     size_hint: .25, 1
                     text: 'category'
@@ -71,7 +71,7 @@
                     id: cat_input
                     size_hint: .75, 1
                     hint_text: 'category'
-            OperationField:
+            OpField:
                 Label:
                     size_hint: .25, 1
                     text: 'description'
@@ -79,7 +79,7 @@
                     id: desc_input
                     size_hint: .75, 1
                     hint_text: 'description'
-            OperationField:
+            OpField:
                 Label:
                     size_hint: .25, 1
                     text: 'amount'
@@ -122,7 +122,7 @@
                         root.save_btn_cb()
                         root.manager.transition.direction = "right"
 
-<OperationListScreen>:
+<OpListScreen>:
     BoxLayout:
         padding: "10dp"
         spacing: "10dp"
@@ -157,6 +157,12 @@
                 spacing: "5dp"
                 orientation: "tb-lr"
                 size_hint: 1, None
+                canvas.before:
+                    Color:
+                        rgba: 1, 0, 0, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
         AnchorLayout:
             size_hint: 1, .1
             anchor_x: 'right'

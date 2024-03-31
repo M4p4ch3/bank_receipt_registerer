@@ -7,17 +7,18 @@ import csv
 from datetime import datetime
 # from enum import Enum
 import logging
-from os.path import expanduser, dirname, join
+# from os.path import expanduser, dirname, join
+from os.path import expanduser
 # from typing import Any
 from typing import List
 
 import kivy
 from kivy.app import App
 # from kivy.app import App, user_data_dir
-from kivy.core.window import Window
+# from kivy.core.window import Window
 from kivy.lang import Builder
 # from kivy.logger import Logger
-from kivy.metrics import dp, sp
+from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
@@ -151,91 +152,91 @@ class OpListMgr():
             for operation in self.op_list:
                 op_list_csv_writer.writerow(operation.as_csv())
 
-class OperationFieldMode(BoxLayout):
+class OpScreen(Screen):
+    """Operation screen"""
 
-    class Drop(DropDown):
+    class ModeField(BoxLayout):
+
+        class Drop(DropDown):
+
+            class _Button(Button):
+
+                def __init__(self, name: str, op_field_mode: OpScreen.ModeField, **kwargs):
+                    super().__init__(text=name, **kwargs)
+                    self.id = name
+                    self.name = name
+                    self.op_field_mode = op_field_mode
+                    self.size_hint_y = None
+                    self.height = "35dp"
+
+                def on_release(self):
+                    self.op_field_mode.set_value(self.name)
+                    self.op_field_mode.close_drop()
+                    return super().on_release()
+
+            def __init__(self, op_field_mode: OpScreen.ModeField, **kwargs):
+                super().__init__(**kwargs)
+                self.op_field_mode = op_field_mode
+                self.size_hint = (.75, 1)
+                self.mode_button_list = [
+                    OpScreen.ModeField.Drop._Button("cb", op_field_mode),
+                    OpScreen.ModeField.Drop._Button("cb web", op_field_mode),
+                    OpScreen.ModeField.Drop._Button("paypal", op_field_mode),
+                    OpScreen.ModeField.Drop._Button("vir", op_field_mode),
+                    OpScreen.ModeField.Drop._Button("cash", op_field_mode),
+                    OpScreen.ModeField.Drop._Button("cheque", op_field_mode),
+                ]
+                for mode_button in self.mode_button_list:
+                    self.add_widget(mode_button)
 
         class _Button(Button):
 
-            def __init__(self, name: str, op_field_mode: OperationFieldMode, **kwargs):
-                super().__init__(text=name, **kwargs)
-                self.id = name
-                self.name = name
+            def __init__(self, op_field_mode: OpScreen.ModeField, **kwargs):
+                super().__init__(**kwargs)
+                # self.id = "button"
                 self.op_field_mode = op_field_mode
-                self.size_hint_y = None
-                self.height = "35dp"
-
-            def on_release(self):
-                self.op_field_mode.set_value(self.name)
+                self.size_hint = (.75, 1)
+                self.reset_value()
                 self.op_field_mode.close_drop()
-                return super().on_release()
 
-        def __init__(self, op_field_mode: OperationFieldMode, **kwargs):
+            def on_release(self, **kwargs):
+                self.op_field_mode.open_drop()
+                return super().on_release(**kwargs)
+
+            def reset_value(self):
+                self.text = self.op_field_mode.drop.mode_button_list[0].text
+
+            def set_value(self, value: str):
+                self.text = value
+
+        def __init__(self, **kwargs):
             super().__init__(**kwargs)
-            self.op_field_mode = op_field_mode
-            self.size_hint = (.75, 1)
-            self.mode_button_list = [
-                OperationFieldMode.Drop._Button("cb", op_field_mode),
-                OperationFieldMode.Drop._Button("cb web", op_field_mode),
-                OperationFieldMode.Drop._Button("paypal", op_field_mode),
-                OperationFieldMode.Drop._Button("vir", op_field_mode),
-                OperationFieldMode.Drop._Button("cash", op_field_mode),
-                OperationFieldMode.Drop._Button("cheque", op_field_mode),
-            ]
-            for mode_button in self.mode_button_list:
-                self.add_widget(mode_button)
-
-    class _Button(Button):
-
-        def __init__(self, op_field_mode: OperationFieldMode, **kwargs):
-            super().__init__(**kwargs)
-            # self.id = "button"
-            self.op_field_mode = op_field_mode
-            self.size_hint = (.75, 1)
-            self.reset_value()
-            self.op_field_mode.close_drop()
-
-        def on_release(self, **kwargs):
-            self.op_field_mode.open_drop()
-            return super().on_release(**kwargs)
+            self.id = "mode"
+            self.orientation = "horizontal"
+            self.add_widget(Label(size_hint=(.25, 1), text="mode"))
+            self.drop = OpScreen.ModeField.Drop(self)
+            self.add_widget(self.drop)
+            self.button = OpScreen.ModeField._Button(self)
+            self.add_widget(self.button)
 
         def reset_value(self):
-            self.text = self.op_field_mode.drop.mode_button_list[0].text
+            self.button.reset_value()
 
         def set_value(self, value: str):
-            self.text = value
+            self.button.text = value
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.id = "mode"
-        self.orientation = "horizontal"
-        self.add_widget(Label(size_hint=(.25, 1), text="mode"))
-        self.drop = OperationFieldMode.Drop(self)
-        self.add_widget(self.drop)
-        self.button = OperationFieldMode._Button(self)
-        self.add_widget(self.button)
+        def get_value(self):
+            return self.button.text
 
-    def reset_value(self):
-        self.button.reset_value()
+        def open_drop(self):
+            self.drop.open(self.button)
 
-    def set_value(self, value: str):
-        self.button.text = value
-
-    def get_value(self):
-        return self.button.text
-
-    def open_drop(self):
-        self.drop.open(self.button)
-
-    def close_drop(self):
-        self.drop.dismiss()
-
-class OperationScreen(Screen):
-    """Operation screen"""
+        def close_drop(self):
+            self.drop.dismiss()
 
     NAME = "operation"
 
-    def __init__(self, app: BankOperationRegisterer, **kwargs):
+    def __init__(self, app: BankOpRegisterer, **kwargs):
         super().__init__(**kwargs)
 
         self.app = app
@@ -288,7 +289,7 @@ class OperationScreen(Screen):
     def exit(self):
         """Go back to operations list screen"""
         self.operation = None
-        self.app.screen_mgr.current = OperationListScreen.NAME
+        self.app.screen_mgr.current = OpListScreen.NAME
 
     def cancel_btn_cb(self):
         """Cancel button callback"""
@@ -318,17 +319,21 @@ class OperationScreen(Screen):
         self.app.op_list_mgr.save()
         self.exit()
 
+# Alias for kv file
+class OpModeField(OpScreen.ModeField):
+    pass
+
 class OpEditButton(Button):
     """Operation edit button"""
 
-    def __init__(self, app: BankOperationRegisterer, operation: Operation, **kwargs):
+    def __init__(self, app: BankOpRegisterer, operation: Operation, **kwargs):
         super().__init__(**kwargs)
         self.app = app
         self.operation = operation
 
     def on_release(self):
         self.app.op_screen.operation = self.operation
-        self.app.screen_mgr.current = OperationScreen.NAME
+        self.app.screen_mgr.current = OpScreen.NAME
         super().on_release()
 
 class ConfirmPopup(Popup):
@@ -352,7 +357,7 @@ class ConfirmPopup(Popup):
 class OpDeleteButton(Button):
     """Operation delete button"""
 
-    def __init__(self, app: BankOperationRegisterer, operation: Operation, **kwargs):
+    def __init__(self, app: BankOpRegisterer, operation: Operation, **kwargs):
         super().__init__(**kwargs)
         self.app = app
         self.operation = operation
@@ -372,36 +377,36 @@ class OpDeleteButton(Button):
 
 class OperationLayout(BoxLayout):
     """Operation layout"""
-    def __init__(self, app: BankOperationRegisterer, operation: Operation):
+    def __init__(self, app: BankOpRegisterer, operation: Operation):
         super().__init__()
         self.orientation = "horizontal"
+        self.size_hint = (1, None)
+        self.size = (1, dp(35))
         self.add_widget(Label(text=str(operation)))
         self.add_widget(OpEditButton(app, operation, text="edit", size_hint=(0.3, 1)))
         self.add_widget(OpDeleteButton(app, operation, text="x", size_hint=(0.15, 1)))
 
-class OperationListScreen(Screen):
+class OpListScreen(Screen):
     """Operations list screen"""
 
     NAME = "operation_list"
 
-    def __init__(self, app: BankOperationRegisterer, **kwargs):
+    def __init__(self, app: BankOpRegisterer, **kwargs):
         super().__init__(**kwargs)
         self.app = app
         self.logger = logging.getLogger(self.__class__.__name__)
 
     def reload(self):
         """Update operations list"""
-        self.logger.debug("OperationListScreen: reload")
+        self.logger.debug("OpListScreen: reload")
         op_list_layout = self.ids["op_list_layout"]
         op_list_layout.clear_widgets()
         op_list_layout.height = 0
 
         for operation in self.app.op_list_mgr.op_list:
             operation_layout = OperationLayout(self.app, operation)
-            operation_layout.size_hint = (1, None)
-            operation_layout.size = (1, dp(35))
             op_list_layout.add_widget(operation_layout)
-            op_list_layout.height += operation_layout.height
+            op_list_layout.height += operation_layout.height + dp(5)
 
     def on_enter(self, *args):
         self.reload()
@@ -409,16 +414,11 @@ class OperationListScreen(Screen):
 
     def add_btn_cb(self):
         """Add button callback"""
-        self.app.screen_mgr.current = OperationScreen.NAME
-
-# Window.size = (500, 700)
-# from kivy.config import Config
-# Config.set('graphics', 'width', '720')
-# Config.set('graphics', 'height', '1280')
+        self.app.screen_mgr.current = OpScreen.NAME
 
 root_widget = Builder.load_file("main.kv")
 
-class BankOperationRegisterer(App):
+class BankOpRegisterer(App):
     """Bank operation registerer app"""
 
     def __init__(self, **kwargs):
@@ -426,8 +426,8 @@ class BankOperationRegisterer(App):
 
         self.op_list_mgr = OpListMgr("operation_list.csv")
         self.screen_mgr = ScreenManager()
-        self.op_list_screen = OperationListScreen(self, name=OperationListScreen.NAME)
-        self.op_screen = OperationScreen(self, name=OperationScreen.NAME)
+        self.op_list_screen = OpListScreen(self, name=OpListScreen.NAME)
+        self.op_screen = OpScreen(self, name=OpScreen.NAME)
 
         screen_list = [
             self.op_list_screen,
@@ -437,7 +437,7 @@ class BankOperationRegisterer(App):
         for screen in screen_list:
             self.screen_mgr.add_widget(screen)
 
-        self.screen_mgr.current = OperationListScreen.NAME
+        self.screen_mgr.current = OpListScreen.NAME
 
     def build(self):
         return self.screen_mgr
@@ -445,7 +445,7 @@ class BankOperationRegisterer(App):
 def main():
     """Main"""
     logging.basicConfig(level=logging.DEBUG)
-    bank_op_register = BankOperationRegisterer()
+    bank_op_register = BankOpRegisterer()
     bank_op_register.run()
 
 def check_permissions(perm_list):
