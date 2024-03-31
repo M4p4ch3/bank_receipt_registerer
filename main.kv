@@ -11,16 +11,18 @@
 <OperationMode@Button>
     size_hint_y: None
     height: "35dp"
+    padding: "0dp"
 
 <OperationFieldMode@OperationField>
     Label:
-        size_hint: .3, 1
+        size_hint: .25, 1
         text: 'mode'
     DropDown:
         id: drop
         on_select: button.text = f'{args[1]}'
+        spacing: "0dp"
         OperationMode:
-            id: cb
+            # id: cb
             text: 'cb'
             on_release: drop.select(self.text)
         OperationMode:
@@ -40,8 +42,9 @@
             on_release: drop.select(self.text)
     Button:
         id: button
-        size_hint: .7, 1
-        text: cb.text
+        size_hint: .75, 1
+        # Cant rely on mode/cb as resulting in ReferenceError
+        text: 'cb'
         on_parent: drop.dismiss()
         on_release: drop.open(self)
 
@@ -80,13 +83,13 @@
                     rectangle: self.x, self.y, self.width, self.height
             OperationField:
                 Label:
-                    size_hint: .3, 1
+                    size_hint: .25, 1
                     text: 'date'
                 Label:
                     id: date_label_val
                     size_hint: .5, 1
                 Button:
-                    size_hint: .2, 1
+                    size_hint: .25, 1
                     text: "choose"
                     on_release:
                         root.choose_date_btn_cb()
@@ -94,35 +97,35 @@
                 id: mode
             OperationField:
                 Label:
-                    size_hint: .3, 1
+                    size_hint: .25, 1
                     text: 'tier'
                 TextInput:
                     id: tier_input
-                    size_hint: .7, 1
+                    size_hint: .75, 1
                     hint_text: 'tier'
             OperationField:
                 Label:
-                    size_hint: .3, 1
+                    size_hint: .25, 1
                     text: 'category'
                 TextInput:
                     id: cat_input
-                    size_hint: .7, 1
+                    size_hint: .75, 1
                     hint_text: 'category'
             OperationField:
                 Label:
-                    size_hint: .3, 1
+                    size_hint: .25, 1
                     text: 'description'
                 TextInput:
                     id: desc_input
-                    size_hint: .7, 1
+                    size_hint: .75, 1
                     hint_text: 'description'
             OperationField:
                 Label:
-                    size_hint: .3, 1
+                    size_hint: .25, 1
                     text: 'amount'
                 TextInput:
                     id: amount_input
-                    size_hint: .7, 1
+                    size_hint: .75, 1
                     input_type: "number"
                     hint_text: '0.0'
         BoxLayout:

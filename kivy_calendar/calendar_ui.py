@@ -27,7 +27,7 @@ Builder.load_string("""
 <ArrowButton>:
     background_normal: ""
     background_down: ""
-    background_color: 1, 1, 1, 0
+    background_color: 0.4, 0.4, 0.4, 1
     size_hint: .1, .1
 
 <MonthYearLabel>:
@@ -50,13 +50,13 @@ Builder.load_string("""
     halign: "center"
 
 <DayAbbrWeekendLabel>:
-    color: 1, 0, 0, 1
+    color: 0.7, 0.7, 0.7, 1
     
 <DayButton>:
     group: "day_num"
     
 <DayNumWeekendButton>:
-    background_color: 1, 0, 0, 1
+    background_color: 0.7, 0.7, 0.7, 1
 """)    
 ###########################################################
 
@@ -242,7 +242,7 @@ class CalendarWidget(RelativeLayout):
             self.create_month_scr(self.quarter[0])
             
         self.sm.current = prev_scr_name
-        self.sm.transition.direction = "left"
+        self.sm.transition.direction = "right"
         
         self.get_quarter()
         self.title = "%s - %s" % (self.month_names[self.active_date[1] - 1], 
@@ -267,7 +267,7 @@ class CalendarWidget(RelativeLayout):
             self.create_month_scr(self.quarter[2])
             
         self.sm.current = next_scr_name
-        self.sm.transition.direction = "right"
+        self.sm.transition.direction = "left"
         
         self.get_quarter()
         self.title = "%s - %s" % (self.month_names[self.active_date[1] - 1], 
