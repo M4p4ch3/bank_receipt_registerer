@@ -20,7 +20,7 @@ from kivy.lang import Builder
 from kivy.metrics import dp, sp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
-# from kivy.uix.dropdown import DropDown
+from kivy.uix.dropdown import DropDown
 # from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 # from kivy.uix.stacklayout import StackLayout
@@ -151,6 +151,85 @@ class OpListMgr():
             for operation in self.op_list:
                 op_list_csv_writer.writerow(operation.as_csv())
 
+class OperationFieldMode(BoxLayout):
+
+    class Drop(DropDown):
+
+        class _Button(Button):
+
+            def __init__(self, name: str, op_field_mode: OperationFieldMode, **kwargs):
+                super().__init__(text=name, **kwargs)
+                self.id = name
+                self.name = name
+                self.op_field_mode = op_field_mode
+                self.size_hint_y = None
+                self.height = "35dp"
+
+            def on_release(self):
+                self.op_field_mode.set_value(self.name)
+                self.op_field_mode.close_drop()
+                return super().on_release()
+
+        def __init__(self, op_field_mode: OperationFieldMode, **kwargs):
+            super().__init__(**kwargs)
+            self.op_field_mode = op_field_mode
+            self.size_hint = (.75, 1)
+            self.mode_button_list = [
+                OperationFieldMode.Drop._Button("cb", op_field_mode),
+                OperationFieldMode.Drop._Button("cb web", op_field_mode),
+                OperationFieldMode.Drop._Button("paypal", op_field_mode),
+                OperationFieldMode.Drop._Button("vir", op_field_mode),
+                OperationFieldMode.Drop._Button("cash", op_field_mode),
+                OperationFieldMode.Drop._Button("cheque", op_field_mode),
+            ]
+            for mode_button in self.mode_button_list:
+                self.add_widget(mode_button)
+
+    class _Button(Button):
+
+        def __init__(self, op_field_mode: OperationFieldMode, **kwargs):
+            super().__init__(**kwargs)
+            # self.id = "button"
+            self.op_field_mode = op_field_mode
+            self.size_hint = (.75, 1)
+            self.reset_value()
+            self.op_field_mode.close_drop()
+
+        def on_release(self, **kwargs):
+            self.op_field_mode.open_drop()
+            return super().on_release(**kwargs)
+
+        def reset_value(self):
+            self.text = self.op_field_mode.drop.mode_button_list[0].text
+
+        def set_value(self, value: str):
+            self.text = value
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.id = "mode"
+        self.orientation = "horizontal"
+        self.add_widget(Label(size_hint=(.25, 1), text="mode"))
+        self.drop = OperationFieldMode.Drop(self)
+        self.add_widget(self.drop)
+        self.button = OperationFieldMode._Button(self)
+        self.add_widget(self.button)
+
+    def reset_value(self):
+        self.button.reset_value()
+
+    def set_value(self, value: str):
+        self.button.text = value
+
+    def get_value(self):
+        return self.button.text
+
+    def open_drop(self):
+        self.drop.open(self.button)
+
+    def close_drop(self):
+        self.drop.dismiss()
+
 class OperationScreen(Screen):
     """Operation screen"""
 
@@ -184,8 +263,7 @@ class OperationScreen(Screen):
     def reset_fields(self):
         """Reset all operation fields"""
         self.ids["date_label_val"].text = self.today_date_str
-        # Cant rely on mode/cb as resulting in ReferenceError
-        self.ids["mode"].ids["button"].text = "cb" # self.ids["mode"].ids["cb"].text
+        self.ids["mode"].reset_value()
         self.ids["tier_input"].text = ""
         self.ids["cat_input"].text = ""
         self.ids["desc_input"].text = ""
@@ -200,7 +278,7 @@ class OperationScreen(Screen):
 
         self.ids["date_label_val"].text = self.operation.date.strftime(Operation.TIME_FMT)
         if self.operation.mode != "":
-            self.ids["mode"].ids["button"].text = self.operation.mode
+            self.ids["mode"].set_value(self.operation.mode)
         self.ids["tier_input"].text = self.operation.tier
         self.ids["cat_input"].text = self.operation.category
         self.ids["desc_input"].text = self.operation.description
@@ -227,7 +305,7 @@ class OperationScreen(Screen):
 
         operation = Operation(
             datetime.strptime(self.ids["date_label_val"].text, Operation.TIME_FMT),
-            self.ids["mode"].ids["button"].text,
+            self.ids["mode"].get_value(),
             self.ids["tier_input"].text,
             self.ids["cat_input"].text,
             self.ids["desc_input"].text,
