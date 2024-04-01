@@ -15,7 +15,8 @@ from typing import List
 import kivy
 from kivy.app import App
 # from kivy.app import App, user_data_dir
-# from kivy.core.window import Window
+from kivy.core.window import Window
+from kivy.graphics import Rectangle, Color
 from kivy.lang import Builder
 # from kivy.logger import Logger
 from kivy.metrics import dp
@@ -377,12 +378,25 @@ class OpDeleteButton(Button):
 
 class OperationLayout(BoxLayout):
     """Operation layout"""
-    def __init__(self, app: BankOpRegisterer, operation: Operation):
+
+    class _Label(Label):
+        def __init__(self, alt_color: bool, **kwargs):
+            super().__init__(**kwargs)
+            self.alt_color = alt_color
+        def on_size(self, *args):
+            if self.alt_color:
+                if self.canvas:
+                    self.canvas.before.clear()
+                    with self.canvas.before:
+                        Color(0.5, 0.5, 0.5, 0.25)
+                        Rectangle(pos=self.pos, size=self.size)
+
+    def __init__(self, app: BankOpRegisterer, operation: Operation, alt_color: bool):
         super().__init__()
         self.orientation = "horizontal"
         self.size_hint = (1, None)
         self.size = (1, dp(35))
-        self.add_widget(Label(text=str(operation)))
+        self.add_widget(OperationLayout._Label(alt_color, text=str(operation)))
         self.add_widget(OpEditButton(app, operation, text="edit", size_hint=(0.3, 1)))
         self.add_widget(OpDeleteButton(app, operation, text="x", size_hint=(0.15, 1)))
 
@@ -403,8 +417,13 @@ class OpListScreen(Screen):
         op_list_layout.clear_widgets()
         op_list_layout.height = 0
 
-        for operation in self.app.op_list_mgr.op_list:
-            operation_layout = OperationLayout(self.app, operation)
+        for idx, operation in enumerate(self.app.op_list_mgr.op_list):
+
+            alt_color = False
+            if idx % 2 != 1:
+                alt_color = True
+
+            operation_layout = OperationLayout(self.app, operation, alt_color)
             op_list_layout.add_widget(operation_layout)
             op_list_layout.height += operation_layout.height + dp(5)
 
@@ -417,6 +436,7 @@ class OpListScreen(Screen):
         self.app.screen_mgr.current = OpScreen.NAME
 
 root_widget = Builder.load_file("main.kv")
+Window.clearcolor = (0.15, 0.15, 0.15, 1)
 
 class BankOpRegisterer(App):
     """Bank operation registerer app"""
