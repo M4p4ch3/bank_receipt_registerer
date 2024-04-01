@@ -40,6 +40,8 @@ if platform == 'android':
     from android.permissions import Permission, request_permissions, check_permission
     from android.storage import app_storage_path, primary_external_storage_path, secondary_external_storage_path
 
+KEY_ESC = 27
+
 kivy.require('2.3.0')
 
 class Operation:
@@ -104,9 +106,19 @@ class OpListMgr():
     """Operations list manager"""
 
     def __init__(self, file_name: str):
-        self.file_name = file_name
-        self.op_list: List[Operation] = []
+
         self.logger = logging.getLogger(self.__class__.__name__)
+
+        if platform == 'android':
+            base_dir_path = f"{primary_external_storage_path()}/Documents"
+        else:
+            base_dir_path = expanduser('~')
+        self.logger.debug("OpListMgr: base_dir_path = %s", base_dir_path)
+
+        self.file_path = f"{base_dir_path}/{file_name}"
+        self.logger.debug("OpListMgr: file_path = %s", self.file_path)
+
+        self.op_list: List[Operation] = []
         self.load()
 
     def add_operation(self, operation: Operation):
@@ -125,21 +137,12 @@ class OpListMgr():
         self.logger.debug("OpListMgr: load")
         self.op_list.clear()
 
-        if platform == 'android':
-            self.file_dir_path = primary_external_storage_path()
-        else:
-            self.file_dir_path = expanduser('~')
-
-        print(f"OpListMgr: self.file_name = {self.file_name}")
-        self.logger.info("OpListMgr: self.file_name = %s", self.file_name)
-        print(f"OpListMgr: self.file_dir_path = {self.file_dir_path}")
-        self.logger.info("OpListMgr: self.file_dir_path = %s", self.file_dir_path)
-
-        # Ensure file exists by open in write mode
-        with open(f"{self.file_dir_path}/{self.file_name}", mode="a", encoding="utf8"):
+        # Ensure file exists by opening in write mode
+        # Write append mode to avoid overriding
+        with open(self.file_path, mode="a", encoding="utf8"):
             pass
 
-        with open(f"{self.file_dir_path}/{self.file_name}", mode="r", encoding="utf8") as op_list_file:
+        with open(self.file_path, mode="r", encoding="utf8") as op_list_file:
             op_list_csv_reader = csv.DictReader(op_list_file)
             for op_csv_entry in op_list_csv_reader:
                 self.op_list += [Operation.from_csv(op_csv_entry)]
@@ -147,7 +150,7 @@ class OpListMgr():
     def save(self):
         """Save operations list to file"""
         self.logger.debug("OpListMgr: save")
-        with open(f"{self.file_dir_path}/{self.file_name}", mode="w", encoding="utf8") as op_list_file:
+        with open(self.file_path, mode="w", encoding="utf8") as op_list_file:
             op_list_csv_writer = csv.DictWriter(op_list_file, fieldnames=Operation.CSV_KEY_LIST)
             op_list_csv_writer.writeheader()
             for operation in self.op_list:
@@ -242,6 +245,9 @@ class OpScreen(Screen):
             self.multiline = False
             self.next: Union[OpScreen._TextInput, None] = None
 
+        def on_size(self, *args):
+            self.padding = [dp(10), (self.height - self.line_height) / 2]
+
         def on_text_validate(self):
             if self.next:
                 self.next.focus = True
@@ -256,6 +262,7 @@ class OpScreen(Screen):
         super().__init__(**kwargs)
 
         self.app = app
+
         self.operation: Operation | None = None
 
         date_picker = DatePicker()
@@ -293,6 +300,7 @@ class OpScreen(Screen):
         self.ids["tier_input"].text = ""
         self.ids["cat_input"].text = ""
         self.ids["desc_input"].text = ""
+        self.ids["amount_input"].text = ""
 
     def set_fields(self):
         """Set all operations fields"""
@@ -408,7 +416,13 @@ class OperationLayout(BoxLayout):
         def __init__(self, alt_color: bool, **kwargs):
             super().__init__(**kwargs)
             self.alt_color = alt_color
+            self.size_hint = (0.7, 1.0)
+            self.halign = "left"
+            self.valign = "center"
+            self.padding_x = dp(10)
+            self.font_size = dp(12)
         def on_size(self, *args):
+            self.text_size = self.size
             if self.alt_color:
                 if self.canvas:
                     self.canvas.before.clear()
@@ -461,7 +475,7 @@ class OpListScreen(Screen):
         self.app.screen_mgr.current = OpScreen.NAME
 
 root_widget = Builder.load_file("main.kv")
-Window.clearcolor = (0.15, 0.15, 0.15, 1)
+Window.clearcolor = (0.20, 0.20, 0.20, 1)
 
 class BankOpRegisterer(App):
     """Bank operation registerer app"""
@@ -483,6 +497,14 @@ class BankOpRegisterer(App):
             self.screen_mgr.add_widget(screen)
 
         self.screen_mgr.current = OpListScreen.NAME
+
+        Window.bind(on_keyboard=self.keyboard_cb)
+
+    def keyboard_cb(self, window, key, *largs):
+        if key == KEY_ESC:
+            if self.screen_mgr.current == OpScreen.NAME:
+                self.op_screen.exit()
+                return True
 
     def build(self):
         return self.screen_mgr
