@@ -31,6 +31,7 @@
                     width: 1
                     rectangle: self.x, self.y, self.width, self.height
         GridLayout:
+            id: gridLayout
             spacing: "10dp"
             cols: 1
             row_default_height: "35dp"
@@ -59,7 +60,7 @@
                 Label:
                     size_hint: .25, 1
                     text: 'tier'
-                TextInput:
+                OpTextInput:
                     id: tier_input
                     size_hint: .75, 1
                     hint_text: 'tier'
@@ -67,7 +68,7 @@
                 Label:
                     size_hint: .25, 1
                     text: 'category'
-                TextInput:
+                OpTextInput:
                     id: cat_input
                     size_hint: .75, 1
                     hint_text: 'category'
@@ -75,7 +76,7 @@
                 Label:
                     size_hint: .25, 1
                     text: 'description'
-                TextInput:
+                OpTextInput:
                     id: desc_input
                     size_hint: .75, 1
                     hint_text: 'description'
@@ -83,7 +84,7 @@
                 Label:
                     size_hint: .25, 1
                     text: 'amount'
-                TextInput:
+                OpTextInput:
                     id: amount_input
                     size_hint: .75, 1
                     input_type: "number"

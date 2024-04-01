@@ -10,7 +10,7 @@ import logging
 # from os.path import expanduser, dirname, join
 from os.path import expanduser
 # from typing import Any
-from typing import List
+from typing import List, Union
 
 import kivy
 from kivy.app import App
@@ -28,7 +28,7 @@ from kivy.uix.label import Label
 # from kivy.uix.stacklayout import StackLayout
 # from kivy.uix.recycleview import RecycleView
 from kivy.uix.screenmanager import ScreenManager, Screen
-# from kivy.uix.textinput import TextInput
+from kivy.uix.textinput import TextInput
 # from kivy.uix.widget import Widget
 from kivy.uix.popup import Popup
 from kivy.utils import platform
@@ -235,6 +235,21 @@ class OpScreen(Screen):
         def close_drop(self):
             self.drop.dismiss()
 
+    class _TextInput(TextInput):
+
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.multiline = False
+            self.next: Union[OpScreen._TextInput, None] = None
+
+        def on_text_validate(self):
+            if self.next:
+                self.next.focus = True
+                self.next.select_all()
+
+        def set_next(self, next: OpScreen._TextInput):
+            self.next = next
+
     NAME = "operation"
 
     def __init__(self, app: BankOpRegisterer, **kwargs):
@@ -246,6 +261,15 @@ class OpScreen(Screen):
         date_picker = DatePicker()
         today_date_str = date_picker.get_today_date()
         self.today_date_str = f"{today_date_str[6:10]}-{today_date_str[3:5]}-{today_date_str[0:2]}"
+
+        text_input_list: List[OpScreen._TextInput] = []
+        for item in self.ids["gridLayout"].children:
+            for item_child in item.children:
+                if isinstance(item_child, OpScreen._TextInput):
+                    text_input_list += [item_child]
+        for (text_input_idx, text_input) in enumerate(text_input_list):
+            if text_input_idx - 1 >= 0:
+                text_input.set_next(text_input_list[text_input_idx - 1])
 
     def on_enter(self, *args):
         self.set_fields()
@@ -284,8 +308,7 @@ class OpScreen(Screen):
         self.ids["tier_input"].text = self.operation.tier
         self.ids["cat_input"].text = self.operation.category
         self.ids["desc_input"].text = self.operation.description
-        if self.operation.amount != 0.0:
-            self.ids["amount_input"].text = self.operation.amount
+        self.ids["amount_input"].text = str(self.operation.amount)
 
     def exit(self):
         """Go back to operations list screen"""
@@ -320,8 +343,10 @@ class OpScreen(Screen):
         self.app.op_list_mgr.save()
         self.exit()
 
-# Alias for kv file
+# Aliases for kv file
 class OpModeField(OpScreen.ModeField):
+    pass
+class OpTextInput(OpScreen._TextInput):
     pass
 
 class OpEditButton(Button):
