@@ -243,6 +243,9 @@ class OpScreen(Screen):
         def __init__(self, **kwargs):
             super().__init__(**kwargs)
             self.multiline = False
+            self.input_type = "text"
+            # Seems to be broken at the moment on Swiftkey keyboard
+            self.keyboard_suggestions = True
             self.next: Union[OpScreen._TextInput, None] = None
 
         def on_size(self, *args):
@@ -436,8 +439,8 @@ class OperationLayout(BoxLayout):
         self.size_hint = (1, None)
         self.size = (1, dp(35))
         self.add_widget(OperationLayout._Label(alt_color, text=str(operation)))
-        self.add_widget(OpEditButton(app, operation, text="edit", size_hint=(0.3, 1)))
-        self.add_widget(OpDeleteButton(app, operation, text="x", size_hint=(0.15, 1)))
+        self.add_widget(OpEditButton(app, operation, text="edit", size_hint=(0.2, 1)))
+        self.add_widget(OpDeleteButton(app, operation, text="x", size_hint=(0.1, 1)))
 
 class OpListScreen(Screen):
     """Operations list screen"""
