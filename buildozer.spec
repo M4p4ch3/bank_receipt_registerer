@@ -10,7 +10,7 @@ package.name = bank_receipt_registerer
 package.domain = org.test
 
 # (str) Source code where the main.py live
-source.dir = .
+source.dir = src
 
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,kv
@@ -22,7 +22,7 @@ source.include_exts = py,kv
 source.exclude_exts = .gitignore
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-source.exclude_dirs = .git,.venv,data
+source.exclude_dirs = .git,.venv,.vscode,data
 
 # (list) List of exclusions using pattern matching
 # Do not prefix with './'
