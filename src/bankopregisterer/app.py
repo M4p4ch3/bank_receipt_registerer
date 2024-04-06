@@ -52,8 +52,8 @@ class BankOpRegisterer(App):
 
         self.op_mgr = OpMgr(f"{base_dir_path}/operation_list.csv")
         self.screen_mgr = ScreenManager()
-        self.op_list_screen = OpListScreen(self, name=OpListScreen.NAME)
-        self.op_screen = OpScreen(self,name=OpScreen.NAME)
+        self.op_list_screen = OpListScreen(self)
+        self.op_screen = OpScreen(self)
 
         screen_list = [
             self.op_list_screen,
@@ -76,6 +76,6 @@ class BankOpRegisterer(App):
     def build(self):
         return self.screen_mgr
 
-from internal.op_mgr import OpMgr
-from screens.op_list import OpListScreen
-from screens.operation import OpScreen
+from bankopregisterer.internal.op_mgr import OpMgr
+from bankopregisterer.screens.op_list import OpListScreen
+from bankopregisterer.screens.operation import OpScreen

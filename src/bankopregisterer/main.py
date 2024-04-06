@@ -7,7 +7,7 @@ from typing import Any, List
 
 from kivy.utils import platform
 
-from app import BankOpRegisterer
+from bankopregisterer.app import BankOpRegisterer
 
 if platform == "android":
     import android

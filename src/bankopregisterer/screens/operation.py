@@ -138,6 +138,7 @@ class OpScreen(Screen):
 
     def __init__(self, app: BankOpRegisterer, **kwargs):
         super().__init__(**kwargs)
+        self.name = self.NAME
 
         self.app = app
 
@@ -235,7 +236,7 @@ class OpModeField(OpScreen.ModeField):
 class OpTextInput(OpScreen._TextInput):
     pass
 
-from app import BankOpRegisterer
-from internal.operation import Operation
-from screens.op_list import OpListScreen
-from kivy_calendar.calendar_ui import DatePicker
+from bankopregisterer.app import BankOpRegisterer
+from bankopregisterer.internal.operation import Operation
+from bankopregisterer.kivy_calendar.calendar_ui import DatePicker
+from bankopregisterer.screens.op_list import OpListScreen

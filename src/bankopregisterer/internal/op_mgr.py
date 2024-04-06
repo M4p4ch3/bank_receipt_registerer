@@ -4,7 +4,7 @@ import csv
 import logging
 from typing import List
 
-from .operation import Operation
+from bankopregisterer.internal.operation import Operation
 
 class OpMgr():
 

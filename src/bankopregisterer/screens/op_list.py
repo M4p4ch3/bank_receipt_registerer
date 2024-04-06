@@ -123,6 +123,7 @@ class OpListScreen(Screen):
 
     def __init__(self, app: BankOpRegisterer, **kwargs):
         super().__init__(**kwargs)
+        self.name = self.NAME
         self.app = app
         self.logger = logging.getLogger(self.__class__.__name__)
 
@@ -149,9 +150,10 @@ class OpListScreen(Screen):
 
     def add_btn_cb(self):
         """Add button callback"""
-        self.app.screen_mgr.current = OpScreen.NAME
+        # self.root.manager.current = "operation"
+        # self.app.screen_mgr.current = OpScreen.NAME
+        self.app.screen_mgr.current = "operation"
 
-from app import BankOpRegisterer
-from internal.operation import Operation
-from .op_list import OpListScreen
-from .operation import OpScreen
+from bankopregisterer.app import BankOpRegisterer
+from bankopregisterer.internal.operation import Operation
+from bankopregisterer.screens.operation import OpScreen
