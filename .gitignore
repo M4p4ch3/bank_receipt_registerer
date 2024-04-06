@@ -1,6 +1,8 @@
 .buildozer/
 .vscode/
 bin/
+build/
 data/
 venv/
 **/__pycache__/
+**/*.egg-info
