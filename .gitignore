@@ -1,4 +1,5 @@
 .buildozer/
+.vscode/
 bin/
 data/
 venv/
