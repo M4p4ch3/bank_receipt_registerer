@@ -571,7 +571,9 @@ class SettingsScreen(Screen):
 
     def reload(self):
         self.ids["lang_input_val"].text = self.app.settings.get("lang")
-        self.ids["debug_input_val"].text = self.app.settings.get("debug")
+        self.ids["debug_check"].active = False
+        if self.app.settings.get("debug") == "on":
+            self.ids["debug_check"].active = True
 
         if self.app.get_debug():
             for widget in self.children:
@@ -600,10 +602,13 @@ class SettingsScreen(Screen):
                     settings_changed = True
                 break
 
-        debug_usr = self.ids["debug_input_val"].text
-        if debug_usr == "off" or debug_usr == "on":
-            if self.app.settings.get("debug") != debug_usr:
-                self.app.settings.set("debug", debug_usr)
+        if self.ids["debug_check"].active:
+            if self.app.settings.get("debug") == "off":
+                self.app.settings.set("debug", "on")
+                settings_changed = True
+        else:
+            if self.app.settings.get("debug") == "on":
+                self.app.settings.set("debug", "off")
                 settings_changed = True
 
         if settings_changed:
