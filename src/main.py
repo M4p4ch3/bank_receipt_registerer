@@ -636,18 +636,21 @@ class BankOpRegisterer(App):
         super().__init__(**kwargs)
 
         if platform == 'android':
-            self.base_dir_path = f"{primary_external_storage_path()}/{self.BASE_DIR_NAME}/"
+            root_dir_path = primary_external_storage_path()
         else:
-            self.base_dir_path = f"{expanduser('~')}/{self.BASE_DIR_NAME}/"
-        self.logger.debug("BankOpRegisterer: base_dir_path = %s", self.base_dir_path)
+            root_dir_path = expanduser('~')
+        self.logger.debug("BankOpRegisterer: root_dir_path = %s", root_dir_path)
 
-        if not os.path.isdir(self.base_dir_path):
+        base_dir_path = f"{root_dir_path}/{self.BASE_DIR_NAME}"
+        self.logger.debug("BankOpRegisterer: base_dir_path = %s", base_dir_path)
+
+        if not os.path.isdir(base_dir_path):
             self.logger.debug("BankOpRegisterer: create base_dir_path")
-            os.mkdir(self.base_dir_path)
+            os.mkdir(base_dir_path)
 
-        self.settings = Settings(f"{self.base_dir_path}/{self.SETTINGS_FILE_NAME}")
+        self.settings = Settings(f"{base_dir_path}/{self.SETTINGS_FILE_NAME}")
 
-        self.op_mgr = OpMgr(f"{self.base_dir_path}/{self.OP_LIST_FILE_NAME}")
+        self.op_mgr = OpMgr(f"{base_dir_path}/{self.OP_LIST_FILE_NAME}")
 
         self.screen_mgr = ScreenManager()
 
