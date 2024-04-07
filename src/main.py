@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import configparser
 import csv
-# from dataclasses import dataclass
+from dataclasses import dataclass
 from datetime import datetime
 # from enum import Enum
 import logging
 # from os.path import expanduser, dirname, join
+import os
 from os.path import expanduser
 # from typing import Any
 from typing import List, Union
@@ -46,6 +48,79 @@ if platform == 'android':
 KEY_ESC = 27
 
 kivy.require('2.3.0')
+
+class LangDict():
+
+    @dataclass
+    class Language():
+        name: str
+        key: str
+
+    LANG_LIST = [
+        Language("english", "en"),
+        Language("francais", "fr"),
+    ]
+
+    DICT = {
+        "add": {
+            "en": "add",
+            "fr": "ajouter",
+        },
+        "save": {
+            "en": "save",
+            "fr": "sauvegarder",
+        },
+        "cancel": {
+            "en": "cancel",
+            "fr": "annuler",
+        },
+        "edit": {
+            "en": "edit",
+            "fr": "modifier",
+        },
+        "settings": {
+            "en": "settings",
+            "fr": "paramètres",
+        },
+        "operation": {
+            "en": "operation",
+            "fr": "operation",
+        },
+        "select": {
+            "en": "select",
+            "fr": "selectionner",
+        },
+        "amount": {
+            "en": "amount",
+            "fr": "montant",
+        },
+    }
+
+    def __init__(self, lang_key: str = "en"):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.lang_key: str = "en"
+        self.set_lang(lang_key)
+
+    def get_lang(self):
+        return self.lang_key
+
+    def set_lang(self, lang_key: str):
+        for lang in self.LANG_LIST:
+            if lang_key == lang.key:
+                self.lang_key = lang_key
+                return
+        self.logger.warn("Unknown language key %s", lang_key)
+
+    def get(self, key: str, lang_key: str = ""):
+        if key not in self.DICT:
+            self.logger.warn("Unknown key %s", key)
+            return key
+        if lang_key:
+            if lang_key not in self.DICT[key]:
+                self.logger.warn("Unknown language key %s", lang_key)
+                return key
+            return self.DICT[key][lang_key]
+        return self.DICT[key][self.lang_key]
 
 class OpScreen(Screen):
     """Operation screen"""
@@ -153,9 +228,11 @@ class OpScreen(Screen):
     NAME = "operation"
 
     def __init__(self, app: BankOpRegisterer, **kwargs):
-        super().__init__(**kwargs)
 
         self.app = app
+
+        super().__init__(**kwargs)
+        self.name = self.NAME
 
         self.operation: Operation | None = None
 
@@ -215,6 +292,7 @@ class OpScreen(Screen):
     def exit(self):
         """Go back to operations list screen"""
         self.operation = None
+        self.app.screen_mgr.transition.direction = "right"
         self.app.screen_mgr.current = OpListScreen.NAME
 
     def cancel_btn_cb(self):
@@ -240,9 +318,9 @@ class OpScreen(Screen):
         )
 
         if self.operation:
-            self.app.op_list_mgr.delete_operation(self.operation)
-        self.app.op_list_mgr.add_operation(operation)
-        self.app.op_list_mgr.save()
+            self.app.op_mgr.delete_operation(self.operation)
+        self.app.op_mgr.add_operation(operation)
+        self.app.op_mgr.save()
         self.exit()
 
 # Aliases for kv file
@@ -255,12 +333,13 @@ class OpEditButton(Button):
     """Operation edit button"""
 
     def __init__(self, app: BankOpRegisterer, operation: Operation, **kwargs):
-        super().__init__(**kwargs)
         self.app = app
+        super().__init__(**kwargs)
         self.operation = operation
 
     def on_release(self):
         self.app.op_screen.operation = self.operation
+        self.app.screen_mgr.transition.direction = "left"
         self.app.screen_mgr.current = OpScreen.NAME
         super().on_release()
 
@@ -286,8 +365,8 @@ class OpDeleteButton(Button):
     """Operation delete button"""
 
     def __init__(self, app: BankOpRegisterer, operation: Operation, **kwargs):
-        super().__init__(**kwargs)
         self.app = app
+        super().__init__(**kwargs)
         self.operation = operation
         self.confirm_popup = ConfirmPopup("Delete operation")
         self.confirm_popup.on_dismiss=self.confirm_popup_dismiss_cb
@@ -295,8 +374,8 @@ class OpDeleteButton(Button):
     def confirm_popup_dismiss_cb(self):
         """Confirmation popup dismiss callback"""
         if self.confirm_popup.status:
-            self.app.op_list_mgr.delete_operation(self.operation)
-            self.app.op_list_mgr.save()
+            self.app.op_mgr.delete_operation(self.operation)
+            self.app.op_mgr.save()
             self.app.op_list_screen.reload()
 
     def on_release(self):
@@ -330,7 +409,7 @@ class OperationLayout(BoxLayout):
         self.size_hint = (1, None)
         self.size = (1, dp(35))
         self.add_widget(OperationLayout._Label(alt_color, text=str(operation)))
-        self.add_widget(OpEditButton(app, operation, text="edit", size_hint=(0.2, 1)))
+        self.add_widget(OpEditButton(app, operation, text=app.dict.get("edit"), size_hint=(0.2, 1)))
         self.add_widget(OpDeleteButton(app, operation, text="x", size_hint=(0.1, 1)))
 
 class OpListScreen(Screen):
@@ -339,9 +418,10 @@ class OpListScreen(Screen):
     NAME = "operation_list"
 
     def __init__(self, app: BankOpRegisterer, **kwargs):
-        super().__init__(**kwargs)
-        self.app = app
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.app = app
+        super().__init__(**kwargs)
+        self.name = self.NAME
 
     def reload(self):
         """Update operations list"""
@@ -350,7 +430,7 @@ class OpListScreen(Screen):
         op_list_layout.clear_widgets()
         op_list_layout.height = 0
 
-        for idx, operation in enumerate(self.app.op_list_mgr.op_list):
+        for idx, operation in enumerate(self.app.op_mgr.op_list):
 
             alt_color = False
             if idx % 2 != 1:
@@ -366,7 +446,99 @@ class OpListScreen(Screen):
 
     def add_btn_cb(self):
         """Add button callback"""
+        self.app.screen_mgr.transition.direction = "left"
         self.app.screen_mgr.current = OpScreen.NAME
+
+    def settings_btn_cb(self):
+        self.app.screen_mgr.transition.direction = "right"
+        self.app.screen_mgr.current = SettingsScreen.NAME
+
+    def get_dict(self, key: str):
+        return self.app.dict.get(key)
+
+class Settings():
+
+    DICT_DFLT = {
+        "main": {
+            "lang": "en",
+            # "base_dir": "~/bank_op_reg",
+        },
+    }
+
+    def __init__(self, file_path: str) -> None:
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.file_path = file_path
+        self.conf_parser = configparser.ConfigParser()
+        self.conf_parser.read_dict(self.DICT_DFLT)
+        self.load()
+
+    def get(self, option: str, section: str = "main"):
+        if not self.conf_parser.has_section(section):
+            self.logger.warn("Settings: No section %s", section)
+            return ""
+        if not self.conf_parser.has_option(section, option):
+            self.logger.warn("Settings: No option %s", option)
+            return ""
+        return self.conf_parser.get(section, option)
+
+    def set(self, option: str, value: str, section: str = "main"):
+        self.logger.debug("Settings: set %s = %s", option, value)
+        if not self.conf_parser.has_section(section):
+            self.conf_parser.add_section(section)
+        return self.conf_parser.set(section, option, value)
+
+    def load(self):
+        self.logger.debug("Settings: load")
+        self.conf_parser.read(self.file_path)
+
+    def save(self):
+        self.logger.debug("Settings: save")
+        with open(self.file_path, "w") as conf_file:
+            self.conf_parser.write(conf_file)
+
+class SettingsScreen(Screen):
+
+    NAME = "settings"
+
+    def __init__(self, app: BankOpRegisterer, **kwargs):
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.app = app
+        super().__init__(**kwargs)
+        self.name = self.NAME
+
+    def reload(self):
+        self.ids["lang_input_val"].text = self.app.settings.get("lang")
+
+    def on_enter(self, *args):
+        self.reload()
+        super().on_enter(*args)
+
+    def exit(self):
+        self.app.screen_mgr.transition.direction = "left"
+        self.app.screen_mgr.current = OpListScreen.NAME
+
+    def cancel_btn_cb(self):
+        self.exit()
+
+    def save_btn_cb(self):
+
+        settings_changed = False
+
+        lang_usr = self.ids["lang_input_val"].text
+        for lang in self.app.dict.LANG_LIST:
+            if lang.key == lang_usr or lang.name == lang_usr:
+                if self.app.settings.get("lang") != lang.key:
+                    self.app.settings.set("lang", lang.key)
+                    settings_changed = True
+                break
+
+        if settings_changed:
+            self.app.settings.save()
+            self.app.reload()
+        else:
+            self.logger.debug("SettingsScreen: No change")
+
+        self.exit()
 
 root_widget = Builder.load_file("main.kv")
 Window.clearcolor = (0.20, 0.20, 0.20, 1)
@@ -374,31 +546,33 @@ Window.clearcolor = (0.20, 0.20, 0.20, 1)
 class BankOpRegisterer(App):
     """Bank operation registerer app"""
 
+    BASE_DIR_NAME = "bank_op_reg"
+    SETTINGS_FILE_NAME = "settings.ini"
+    OP_LIST_FILE_NAME = "operation_list.csv"
+
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
         self.logger = logging.getLogger(self.__class__.__name__)
 
+        super().__init__(**kwargs)
+
         if platform == 'android':
-            base_dir_path = f"{primary_external_storage_path()}/Documents"
+            self.base_dir_path = f"{primary_external_storage_path()}/{self.BASE_DIR_NAME}/"
         else:
-            base_dir_path = expanduser('~')
-        self.logger.debug("BankOpRegisterer: base_dir_path = %s", base_dir_path)
+            self.base_dir_path = f"{expanduser('~')}/{self.BASE_DIR_NAME}/"
+        self.logger.debug("BankOpRegisterer: base_dir_path = %s", self.base_dir_path)
 
-        self.op_list_mgr = OpMgr(f"{base_dir_path}/operation_list.csv")
+        if not os.path.isdir(self.base_dir_path):
+            self.logger.debug("BankOpRegisterer: create base_dir_path")
+            os.mkdir(self.base_dir_path)
+
+        self.settings = Settings(f"{self.base_dir_path}/{self.SETTINGS_FILE_NAME}")
+
+        self.op_mgr = OpMgr(f"{self.base_dir_path}/{self.OP_LIST_FILE_NAME}")
+
         self.screen_mgr = ScreenManager()
-        self.op_list_screen = OpListScreen(self, name=OpListScreen.NAME)
-        self.op_screen = OpScreen(self, name=OpScreen.NAME)
 
-        screen_list = [
-            self.op_list_screen,
-            self.op_screen,
-        ]
-
-        for screen in screen_list:
-            self.screen_mgr.add_widget(screen)
-
-        self.screen_mgr.current = OpListScreen.NAME
+        self.reload()
 
         Window.bind(on_keyboard=self.keyboard_cb)
 
@@ -407,9 +581,34 @@ class BankOpRegisterer(App):
             if self.screen_mgr.current == OpScreen.NAME:
                 self.op_screen.exit()
                 return True
+            elif self.screen_mgr.current == SettingsScreen.NAME:
+                self.settings_screen.exit()
+                return True
 
     def build(self):
         return self.screen_mgr
+
+    def reload(self):
+        self.logger.debug("BankOpRegisterer: reload")
+
+        self.dict = LangDict(self.settings.get("lang"))
+
+        self.screen_mgr.clear_widgets()
+
+        self.op_list_screen = OpListScreen(self)
+        self.op_screen = OpScreen(self)
+        self.settings_screen = SettingsScreen(self)
+
+        screen_list = [
+            self.op_list_screen,
+            self.op_screen,
+            self.settings_screen,
+        ]
+
+        for screen in screen_list:
+            self.screen_mgr.add_widget(screen)
+
+        self.screen_mgr.current = OpListScreen.NAME
 
 def main():
     """Main"""

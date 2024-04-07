@@ -22,7 +22,7 @@
         orientation: 'vertical'
         Label:
             size_hint: 1, .1
-            text: 'Operation'
+            text: root.app.dict.get("operation").title()
             font_size: "25dp"
             canvas.before:
                 Color:
@@ -51,7 +51,7 @@
                     size_hint: .5, 1
                 Button:
                     size_hint: .25, 1
-                    text: "choose"
+                    text: root.app.dict.get("select")
                     on_release:
                         root.choose_date_btn_cb()
             OpModeField:
@@ -83,7 +83,7 @@
             OpField:
                 Label:
                     size_hint: .25, 1
-                    text: 'amount'
+                    text: root.app.dict.get("amount")
                 OpTextInput:
                     id: amount_input
                     size_hint: .75, 1
@@ -112,16 +112,20 @@
                     text: "cancel"
                     on_release:
                         root.cancel_btn_cb()
-                        root.manager.transition.direction = "right"
             AnchorLayout:
                 anchor_x: 'right'
                 anchor_y: 'center'
+                canvas.before:
+                    Color:
+                        rgba: 1, 0, 0, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
                 Button:
                     size_hint: .4, 1
                     text: "save"
                     on_release:
                         root.save_btn_cb()
-                        root.manager.transition.direction = "right"
 
 <OpListScreen>:
     BoxLayout:
@@ -164,19 +168,141 @@
                     Line:
                         width: 1
                         rectangle: self.x, self.y, self.width, self.height
-        AnchorLayout:
+        BoxLayout:
+            orientation: 'horizontal'
             size_hint: 1, .1
-            anchor_x: 'right'
-            anchor_y: 'center'
             canvas.before:
                 Color:
                     rgba: 1, 0, 0, 1
                 Line:
                     width: 1
                     rectangle: self.x, self.y, self.width, self.height
-            Button:
-                size_hint: .2, 1
-                text: "add"
-                on_release:
-                    root.add_btn_cb()
-                    root.manager.transition.direction = "left"
+            AnchorLayout:
+                anchor_x: 'left'
+                anchor_y: 'center'
+                canvas.before:
+                    Color:
+                        rgba: 1, 0, 0, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                Button:
+                    id: button_settings
+                    size_hint: .4, 1
+                    text: root.app.dict.get("settings")
+                    on_release:
+                        root.settings_btn_cb()
+            AnchorLayout:
+                anchor_x: 'right'
+                anchor_y: 'center'
+                canvas.before:
+                    Color:
+                        rgba: 1, 0, 0, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                Button:
+                    size_hint: .4, 1
+                    text: "add"
+                    on_release:
+                        root.add_btn_cb()
+
+<SettingsScreen>:
+    BoxLayout:
+        padding: "10dp"
+        spacing: "10dp"
+        orientation: 'vertical'
+        canvas.before:
+            Color:
+                rgba: 1, 0, 0, 1
+            Line:
+                width: 1
+                rectangle: self.x, self.y, self.width, self.height
+        Label:
+            size_hint: 1, .1
+            text: 'Settings'
+            font_size: "25dp"
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+        GridLayout:
+            id: gridLayout
+            spacing: "10dp"
+            cols: 1
+            row_default_height: "35dp"
+            row_force_default: "True"
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+            BoxLayout:
+                orientation: 'horizontal'
+                canvas.before:
+                    Color:
+                        rgba: 1, 0, 0, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                Label:
+                    size_hint: .25, 1
+                    text: 'Language'
+                TextInput:
+                    id: lang_input_val
+                    size_hint: .75, 1
+                    hint_text: 'en'
+            # BoxLayout:
+            #     orientation: 'horizontal'
+            #     canvas.before:
+            #         Color:
+            #             rgba: 1, 0, 0, 1
+            #         Line:
+            #             width: 1
+            #             rectangle: self.x, self.y, self.width, self.height
+            #     Label:
+            #         size_hint: .25, 1
+            #         text: 'Base dir'
+            #     TextInput:
+            #         size_hint: .75, 1
+            #         hint_text: '~/Documents'
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, .1
+            canvas.before:
+                Color:
+                    rgba: 1, 0, 0, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+            AnchorLayout:
+                anchor_x: 'left'
+                anchor_y: 'center'
+                canvas.before:
+                    Color:
+                        rgba: 1, 0, 0, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                Button:
+                    size_hint: .4, 1
+                    text: "cancel"
+                    on_release:
+                        root.cancel_btn_cb()
+            AnchorLayout:
+                anchor_x: 'right'
+                anchor_y: 'center'
+                canvas.before:
+                    Color:
+                        rgba: 1, 0, 0, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                Button:
+                    size_hint: .4, 1
+                    text: "save"
+                    on_release:
+                        root.save_btn_cb()
