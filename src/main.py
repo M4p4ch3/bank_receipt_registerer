@@ -18,7 +18,7 @@ import kivy
 from kivy.app import App
 # from kivy.app import App, user_data_dir
 from kivy.core.window import Window
-from kivy.graphics import Rectangle, Color
+from kivy.graphics import Color, Line, Rectangle
 from kivy.lang import Builder
 # from kivy.logger import Logger
 from kivy.metrics import dp
@@ -27,11 +27,12 @@ from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 # from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
+from kivy.uix.layout import Layout
 # from kivy.uix.stacklayout import StackLayout
 # from kivy.uix.recycleview import RecycleView
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.textinput import TextInput
-# from kivy.uix.widget import Widget
+from kivy.uix.widget import Widget
 from kivy.uix.popup import Popup
 from kivy.utils import platform
 
@@ -249,9 +250,31 @@ class OpScreen(Screen):
             if text_input_idx - 1 >= 0:
                 text_input.set_next(text_input_list[text_input_idx - 1])
 
+    def update_debug(self, widget, value):
+        _ = value
+        widget.debug_line.rectangle = (widget.x, widget.y, widget.width, widget.height)
+
+    def add_debug(self, widget: Widget):
+
+        if (isinstance(widget, Layout)
+            or isinstance(widget, Label)
+            or isinstance(widget, TextInput)
+            or isinstance(widget, Button)):
+
+            with widget.canvas.before:
+                Color(1, 0, 0, 1)
+                widget.debug_line = Line(width=1, rectangle=(widget.x, widget.y, widget.width, widget.height))
+            widget.bind(pos=self.update_debug, size=self.update_debug)
+
+        for widget_child in widget.children:
+            self.add_debug(widget_child)
+
     def on_enter(self, *args):
         self.set_fields()
         super().on_enter(*args)
+        if self.app.get_debug():
+            for widget in self.children:
+                self.add_debug(widget)
 
     def date_picker_cb(self, date_list):
         """Date picket callback setting label text"""
@@ -423,6 +446,25 @@ class OpListScreen(Screen):
         super().__init__(**kwargs)
         self.name = self.NAME
 
+    def update_debug(self, widget, value):
+        _ = value
+        widget.debug_line.rectangle = (widget.x, widget.y, widget.width, widget.height)
+
+    def add_debug(self, widget: Widget):
+
+        if (isinstance(widget, Layout)
+            or isinstance(widget, Label)
+            or isinstance(widget, TextInput)
+            or isinstance(widget, Button)):
+
+            with widget.canvas.before:
+                Color(1, 0, 0, 1)
+                widget.debug_line = Line(width=1, rectangle=(widget.x, widget.y, widget.width, widget.height))
+            widget.bind(pos=self.update_debug, size=self.update_debug)
+
+        for widget_child in widget.children:
+            self.add_debug(widget_child)
+
     def reload(self):
         """Update operations list"""
         self.logger.debug("OpListScreen: reload")
@@ -440,6 +482,10 @@ class OpListScreen(Screen):
             op_list_layout.add_widget(operation_layout)
             op_list_layout.height += operation_layout.height + dp(5)
 
+        if self.app.get_debug():
+            for widget in self.children:
+                self.add_debug(widget)
+
     def on_enter(self, *args):
         self.reload()
         super().on_enter(*args)
@@ -453,14 +499,12 @@ class OpListScreen(Screen):
         self.app.screen_mgr.transition.direction = "right"
         self.app.screen_mgr.current = SettingsScreen.NAME
 
-    def get_dict(self, key: str):
-        return self.app.dict.get(key)
-
 class Settings():
 
     DICT_DFLT = {
         "main": {
             "lang": "en",
+            "debug": "off",
             # "base_dir": "~/bank_op_reg",
         },
     }
@@ -506,8 +550,32 @@ class SettingsScreen(Screen):
         super().__init__(**kwargs)
         self.name = self.NAME
 
+    def update_debug(self, widget, value):
+        _ = value
+        widget.debug_line.rectangle = (widget.x, widget.y, widget.width, widget.height)
+
+    def add_debug(self, widget: Widget):
+
+        if (isinstance(widget, Layout)
+            or isinstance(widget, Label)
+            or isinstance(widget, TextInput)
+            or isinstance(widget, Button)):
+
+            with widget.canvas.before:
+                Color(1, 0, 0, 1)
+                widget.debug_line = Line(width=1, rectangle=(widget.x, widget.y, widget.width, widget.height))
+            widget.bind(pos=self.update_debug, size=self.update_debug)
+
+        for widget_child in widget.children:
+            self.add_debug(widget_child)
+
     def reload(self):
         self.ids["lang_input_val"].text = self.app.settings.get("lang")
+        self.ids["debug_input_val"].text = self.app.settings.get("debug")
+
+        if self.app.get_debug():
+            for widget in self.children:
+                self.add_debug(widget)
 
     def on_enter(self, *args):
         self.reload()
@@ -531,6 +599,12 @@ class SettingsScreen(Screen):
                     self.app.settings.set("lang", lang.key)
                     settings_changed = True
                 break
+
+        debug_usr = self.ids["debug_input_val"].text
+        if debug_usr == "off" or debug_usr == "on":
+            if self.app.settings.get("debug") != debug_usr:
+                self.app.settings.set("debug", debug_usr)
+                settings_changed = True
 
         if settings_changed:
             self.app.settings.save()
@@ -609,6 +683,11 @@ class BankOpRegisterer(App):
             self.screen_mgr.add_widget(screen)
 
         self.screen_mgr.current = OpListScreen.NAME
+
+    def get_debug(self):
+        if self.settings.get("debug") == "on":
+            return True
+        return False
 
 def main():
     """Main"""

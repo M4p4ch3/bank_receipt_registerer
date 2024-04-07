@@ -1,47 +1,47 @@
 
 <OpField@BoxLayout>
     orientation: 'horizontal'
-    canvas.before:
-        Color:
-            rgba: 1, 0, 0, 1
-        Line:
-            width: 1
-            rectangle: self.x, self.y, self.width, self.height
+    # canvas.before:
+    #     Color:
+    #         rgba: 1, 0, 0, 1
+    #     Line:
+    #         width: 1
+    #         rectangle: self.x, self.y, self.width, self.height
 
 <OpScreen>:
     BoxLayout:
         padding: "10dp"
         spacing: "10dp"
-        canvas.before:
-            Color:
-                rgba: 1, 0, 0, 1
-            Line:
-                width: 1
-                rectangle: self.x, self.y, self.width, self.height
+        # canvas.before:
+        #     Color:
+        #         rgba: 1, 0, 0, 1
+        #     Line:
+        #         width: 1
+        #         rectangle: self.x, self.y, self.width, self.height
         padding: "10dp"
         orientation: 'vertical'
         Label:
             size_hint: 1, .1
             text: root.app.dict.get("operation").title()
             font_size: "25dp"
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Line:
-                    width: 1
-                    rectangle: self.x, self.y, self.width, self.height
+            # canvas.before:
+            #     Color:
+            #         rgba: 1, 0, 0, 1
+            #     Line:
+            #         width: 1
+            #         rectangle: self.x, self.y, self.width, self.height
         GridLayout:
             id: gridLayout
             spacing: "10dp"
             cols: 1
             row_default_height: "35dp"
             row_force_default: "True"
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Line:
-                    width: 1
-                    rectangle: self.x, self.y, self.width, self.height
+            # canvas.before:
+            #     Color:
+            #         rgba: 1, 0, 0, 1
+            #     Line:
+            #         width: 1
+            #         rectangle: self.x, self.y, self.width, self.height
             OpField:
                 Label:
                     size_hint: .25, 1
@@ -92,21 +92,21 @@
         BoxLayout:
             orientation: 'horizontal'
             size_hint: 1, .1
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Line:
-                    width: 1
-                    rectangle: self.x, self.y, self.width, self.height
+            # canvas.before:
+            #     Color:
+            #         rgba: 1, 0, 0, 1
+            #     Line:
+            #         width: 1
+            #         rectangle: self.x, self.y, self.width, self.height
             AnchorLayout:
                 anchor_x: 'left'
                 anchor_y: 'center'
-                canvas.before:
-                    Color:
-                        rgba: 1, 0, 0, 1
-                    Line:
-                        width: 1
-                        rectangle: self.x, self.y, self.width, self.height
+                # canvas.before:
+                #     Color:
+                #         rgba: 1, 0, 0, 1
+                #     Line:
+                #         width: 1
+                #         rectangle: self.x, self.y, self.width, self.height
                 Button:
                     size_hint: .4, 1
                     text: "cancel"
@@ -115,12 +115,12 @@
             AnchorLayout:
                 anchor_x: 'right'
                 anchor_y: 'center'
-                canvas.before:
-                    Color:
-                        rgba: 1, 0, 0, 1
-                    Line:
-                        width: 1
-                        rectangle: self.x, self.y, self.width, self.height
+                # canvas.before:
+                #     Color:
+                #         rgba: 1, 0, 0, 1
+                #     Line:
+                #         width: 1
+                #         rectangle: self.x, self.y, self.width, self.height
                 Button:
                     size_hint: .4, 1
                     text: "save"
@@ -132,60 +132,60 @@
         padding: "10dp"
         spacing: "10dp"
         orientation: 'vertical'
-        canvas.before:
-            Color:
-                rgba: 1, 0, 0, 1
-            Line:
-                width: 1
-                rectangle: self.x, self.y, self.width, self.height
+        # canvas.before:
+        #     Color:
+        #         rgba: 1, 0, 0, 1
+        #     Line:
+        #         width: 1
+        #         rectangle: self.x, self.y, self.width, self.height
         Label:
             size_hint: 1, .1
             text: 'Operations list'
             font_size: "25dp"
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Line:
-                    width: 1
-                    rectangle: self.x, self.y, self.width, self.height
+            # canvas.before:
+            #     Color:
+            #         rgba: 1, 0, 0, 1
+            #     Line:
+            #         width: 1
+            #         rectangle: self.x, self.y, self.width, self.height
         ScrollView:
             do_scroll_x: False
             do_scroll_y: True
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Line:
-                    width: 1
-                    rectangle: self.x, self.y, self.width, self.height
+            # canvas.before:
+            #     Color:
+            #         rgba: 1, 0, 0, 1
+            #     Line:
+            #         width: 1
+            #         rectangle: self.x, self.y, self.width, self.height
             StackLayout:
                 id: op_list_layout
                 spacing: "5dp"
                 orientation: "tb-lr"
                 size_hint: 1, None
-                canvas.before:
-                    Color:
-                        rgba: 1, 0, 0, 1
-                    Line:
-                        width: 1
-                        rectangle: self.x, self.y, self.width, self.height
+                # canvas.before:
+                #     Color:
+                #         rgba: 1, 0, 0, 1
+                #     Line:
+                #         width: 1
+                #         rectangle: self.x, self.y, self.width, self.height
         BoxLayout:
             orientation: 'horizontal'
             size_hint: 1, .1
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Line:
-                    width: 1
-                    rectangle: self.x, self.y, self.width, self.height
+            # canvas.before:
+            #     Color:
+            #         rgba: 1, 0, 0, 1
+            #     Line:
+            #         width: 1
+            #         rectangle: self.x, self.y, self.width, self.height
             AnchorLayout:
                 anchor_x: 'left'
                 anchor_y: 'center'
-                canvas.before:
-                    Color:
-                        rgba: 1, 0, 0, 1
-                    Line:
-                        width: 1
-                        rectangle: self.x, self.y, self.width, self.height
+                # canvas.before:
+                #     Color:
+                #         rgba: 1, 0, 0, 1
+                #     Line:
+                #         width: 1
+                #         rectangle: self.x, self.y, self.width, self.height
                 Button:
                     id: button_settings
                     size_hint: .4, 1
@@ -195,12 +195,12 @@
             AnchorLayout:
                 anchor_x: 'right'
                 anchor_y: 'center'
-                canvas.before:
-                    Color:
-                        rgba: 1, 0, 0, 1
-                    Line:
-                        width: 1
-                        rectangle: self.x, self.y, self.width, self.height
+                # canvas.before:
+                #     Color:
+                #         rgba: 1, 0, 0, 1
+                #     Line:
+                #         width: 1
+                #         rectangle: self.x, self.y, self.width, self.height
                 Button:
                     size_hint: .4, 1
                     text: "add"
@@ -212,42 +212,42 @@
         padding: "10dp"
         spacing: "10dp"
         orientation: 'vertical'
-        canvas.before:
-            Color:
-                rgba: 1, 0, 0, 1
-            Line:
-                width: 1
-                rectangle: self.x, self.y, self.width, self.height
+        # canvas.before:
+        #     Color:
+        #         rgba: 1, 0, 0, 1
+        #     Line:
+        #         width: 1
+        #         rectangle: self.x, self.y, self.width, self.height
         Label:
             size_hint: 1, .1
             text: 'Settings'
             font_size: "25dp"
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Line:
-                    width: 1
-                    rectangle: self.x, self.y, self.width, self.height
+            # canvas.before:
+            #     Color:
+            #         rgba: 1, 0, 0, 1
+            #     Line:
+            #         width: 1
+            #         rectangle: self.x, self.y, self.width, self.height
         GridLayout:
             id: gridLayout
             spacing: "10dp"
             cols: 1
             row_default_height: "35dp"
             row_force_default: "True"
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Line:
-                    width: 1
-                    rectangle: self.x, self.y, self.width, self.height
+            # canvas.before:
+            #     Color:
+            #         rgba: 1, 0, 0, 1
+            #     Line:
+            #         width: 1
+            #         rectangle: self.x, self.y, self.width, self.height
             BoxLayout:
                 orientation: 'horizontal'
-                canvas.before:
-                    Color:
-                        rgba: 1, 0, 0, 1
-                    Line:
-                        width: 1
-                        rectangle: self.x, self.y, self.width, self.height
+                # canvas.before:
+                #     Color:
+                #         rgba: 1, 0, 0, 1
+                #     Line:
+                #         width: 1
+                #         rectangle: self.x, self.y, self.width, self.height
                 Label:
                     size_hint: .25, 1
                     text: 'Language'
@@ -255,6 +255,21 @@
                     id: lang_input_val
                     size_hint: .75, 1
                     hint_text: 'en'
+            BoxLayout:
+                orientation: 'horizontal'
+                # canvas.before:
+                #     Color:
+                #         rgba: 1, 0, 0, 1
+                #     Line:
+                #         width: 1
+                #         rectangle: self.x, self.y, self.width, self.height
+                Label:
+                    size_hint: .25, 1
+                    text: 'Debug'
+                TextInput:
+                    id: debug_input_val
+                    size_hint: .75, 1
+                    hint_text: 'off'
             # BoxLayout:
             #     orientation: 'horizontal'
             #     canvas.before:
@@ -272,21 +287,21 @@
         BoxLayout:
             orientation: 'horizontal'
             size_hint: 1, .1
-            canvas.before:
-                Color:
-                    rgba: 1, 0, 0, 1
-                Line:
-                    width: 1
-                    rectangle: self.x, self.y, self.width, self.height
+            # canvas.before:
+            #     Color:
+            #         rgba: 1, 0, 0, 1
+            #     Line:
+            #         width: 1
+            #         rectangle: self.x, self.y, self.width, self.height
             AnchorLayout:
                 anchor_x: 'left'
                 anchor_y: 'center'
-                canvas.before:
-                    Color:
-                        rgba: 1, 0, 0, 1
-                    Line:
-                        width: 1
-                        rectangle: self.x, self.y, self.width, self.height
+                # canvas.before:
+                #     Color:
+                #         rgba: 1, 0, 0, 1
+                #     Line:
+                #         width: 1
+                #         rectangle: self.x, self.y, self.width, self.height
                 Button:
                     size_hint: .4, 1
                     text: "cancel"
@@ -295,12 +310,12 @@
             AnchorLayout:
                 anchor_x: 'right'
                 anchor_y: 'center'
-                canvas.before:
-                    Color:
-                        rgba: 1, 0, 0, 1
-                    Line:
-                        width: 1
-                        rectangle: self.x, self.y, self.width, self.height
+                # canvas.before:
+                #     Color:
+                #         rgba: 1, 0, 0, 1
+                #     Line:
+                #         width: 1
+                #         rectangle: self.x, self.y, self.width, self.height
                 Button:
                     size_hint: .4, 1
                     text: "save"
