@@ -21,7 +21,7 @@
             OpField:
                 Label:
                     size_hint: .25, 1
-                    text: 'date'
+                    text: root.app.dict.get("date")
                 Label:
                     id: date_label_val
                     size_hint: .5, 1
@@ -35,27 +35,27 @@
             OpField:
                 Label:
                     size_hint: .25, 1
-                    text: 'tier'
+                    text: root.app.dict.get("tier")
                 OpTextInput:
                     id: tier_input
                     size_hint: .75, 1
-                    hint_text: 'tier'
+                    hint_text: root.app.dict.get("tier")
             OpField:
                 Label:
                     size_hint: .25, 1
-                    text: 'category'
+                    text: root.app.dict.get("category")
                 OpTextInput:
                     id: cat_input
                     size_hint: .75, 1
-                    hint_text: 'category'
+                    hint_text: root.app.dict.get("category")
             OpField:
                 Label:
                     size_hint: .25, 1
-                    text: 'description'
+                    text: root.app.dict.get("description")
                 OpTextInput:
                     id: desc_input
                     size_hint: .75, 1
-                    hint_text: 'description'
+                    hint_text: root.app.dict.get("description")
             OpField:
                 Label:
                     size_hint: .25, 1
@@ -73,7 +73,7 @@
                 anchor_y: 'center'
                 Button:
                     size_hint: .4, 1
-                    text: "cancel"
+                    text: root.app.dict.get("cancel")
                     on_release:
                         root.cancel_btn_cb()
             AnchorLayout:
@@ -81,7 +81,7 @@
                 anchor_y: 'center'
                 Button:
                     size_hint: .4, 1
-                    text: "save"
+                    text: root.app.dict.get("save")
                     on_release:
                         root.save_btn_cb()
 
@@ -92,7 +92,7 @@
         orientation: 'vertical'
         Label:
             size_hint: 1, .1
-            text: 'Operations list'
+            text: root.app.dict.get("operations").title()
             font_size: "25dp"
         ScrollView:
             do_scroll_x: False
@@ -130,7 +130,7 @@
         orientation: 'vertical'
         Label:
             size_hint: 1, .1
-            text: 'Settings'
+            text: root.app.dict.get("settings").title()
             font_size: "25dp"
         GridLayout:
             id: gridLayout
@@ -138,32 +138,26 @@
             cols: 1
             row_default_height: "35dp"
             row_force_default: "True"
-            BoxLayout:
-                orientation: 'horizontal'
-                Label:
-                    size_hint: .25, 1
-                    text: 'Language'
-                TextInput:
-                    id: lang_input_val
-                    size_hint: .75, 1
-                    hint_text: 'en'
-            BoxLayout:
-                orientation: 'horizontal'
-                Label:
-                    size_hint: .25, 1
-                    text: 'Debug'
-                CheckBox:
-                    id: debug_check
-                    size_hint: .75, 1
-                    hint_text: 'off'
             # BoxLayout:
             #     orientation: 'horizontal'
             #     Label:
             #         size_hint: .25, 1
-            #         text: 'Base dir'
+            #         text: root.app.dict.get("language")
             #     TextInput:
+            #         id: lang_input_val
             #         size_hint: .75, 1
-            #         hint_text: '~/Documents'
+            #         hint_text: 'en'
+            LanguageField:
+                id: lang
+            BoxLayout:
+                orientation: 'horizontal'
+                Label:
+                    size_hint: .25, 1
+                    text: root.app.dict.get("debug")
+                CheckBox:
+                    id: debug_check
+                    size_hint: .75, 1
+                    hint_text: 'off'
         BoxLayout:
             orientation: 'horizontal'
             size_hint: 1, .1
@@ -172,7 +166,7 @@
                 anchor_y: 'center'
                 Button:
                     size_hint: .4, 1
-                    text: "cancel"
+                    text: root.app.dict.get("cancel")
                     on_release:
                         root.cancel_btn_cb()
             AnchorLayout:
@@ -180,6 +174,6 @@
                 anchor_y: 'center'
                 Button:
                     size_hint: .4, 1
-                    text: "save"
+                    text: root.app.dict.get("save")
                     on_release:
                         root.save_btn_cb()

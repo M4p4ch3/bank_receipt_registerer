@@ -52,15 +52,10 @@ kivy.require('2.3.0')
 
 class LangDict():
 
-    @dataclass
-    class Language():
-        name: str
-        key: str
-
-    LANG_LIST = [
-        Language("english", "en"),
-        Language("francais", "fr"),
-    ]
+    LANG_DICT = {
+        "en": "english",
+        "fr": "francais"
+    }
 
     DICT = {
         "add": {
@@ -83,13 +78,37 @@ class LangDict():
             "en": "settings",
             "fr": "paramètres",
         },
+        "language": {
+            "en": "language",
+            "fr": "langue",
+        },
+        "debug": {
+            "en": "debug",
+            "fr": "débogage",
+        },
         "operation": {
             "en": "operation",
             "fr": "operation",
         },
+        "date": {
+            "en": "date",
+            "fr": "date",
+        },
         "select": {
             "en": "select",
             "fr": "selectionner",
+        },
+        "tier": {
+            "en": "tier",
+            "fr": "tiers",
+        },
+        "category": {
+            "en": "category",
+            "fr": "categorie",
+        },
+        "description": {
+            "en": "description",
+            "fr": "description",
         },
         "amount": {
             "en": "amount",
@@ -106,8 +125,8 @@ class LangDict():
         return self.lang_key
 
     def set_lang(self, lang_key: str):
-        for lang in self.LANG_LIST:
-            if lang_key == lang.key:
+        for (key, _) in self.LANG_DICT.items():
+            if lang_key == key:
                 self.lang_key = lang_key
                 return
         self.logger.warn("Unknown language key %s", lang_key)
@@ -505,7 +524,6 @@ class Settings():
         "main": {
             "lang": "en",
             "debug": "off",
-            # "base_dir": "~/bank_op_reg",
         },
     }
 
@@ -542,6 +560,81 @@ class Settings():
 
 class SettingsScreen(Screen):
 
+    class LanguageField(BoxLayout):
+
+        class Drop(DropDown):
+
+            class _Button(Button):
+
+                def __init__(self, name: str, lang_field: SettingsScreen.LanguageField, **kwargs):
+                    super().__init__(text=name, **kwargs)
+                    self.id = name
+                    self.name = name
+                    self.lang_field = lang_field
+                    self.size_hint_y = None
+                    self.height = "35dp"
+
+                def on_release(self):
+                    self.lang_field.set_value(self.name)
+                    self.lang_field.close_drop()
+                    return super().on_release()
+
+            def __init__(self, lang_field: SettingsScreen.LanguageField, **kwargs):
+                super().__init__(**kwargs)
+                self.lang_field = lang_field
+                self.size_hint = (.75, 1)
+                self.mode_button_list = [
+                    SettingsScreen.LanguageField.Drop._Button("english", lang_field),
+                    SettingsScreen.LanguageField.Drop._Button("francais", lang_field),
+                ]
+                for mode_button in self.mode_button_list:
+                    self.add_widget(mode_button)
+
+        class _Button(Button):
+
+            def __init__(self, lang_field: SettingsScreen.LanguageField, **kwargs):
+                super().__init__(**kwargs)
+                # self.id = "button"
+                self.lang_field = lang_field
+                self.size_hint = (.75, 1)
+                self.reset_value()
+                self.lang_field.close_drop()
+
+            def on_release(self, **kwargs):
+                self.lang_field.open_drop()
+                return super().on_release(**kwargs)
+
+            def reset_value(self):
+                self.text = self.lang_field.drop.mode_button_list[0].text
+
+            def set_value(self, value: str):
+                self.text = value
+
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.id = "mode"
+            self.orientation = "horizontal"
+            self.add_widget(Label(size_hint=(.25, 1), text="mode"))
+            self.drop = SettingsScreen.LanguageField.Drop(self)
+            self.add_widget(self.drop)
+            self.button = SettingsScreen.LanguageField._Button(self)
+            self.add_widget(self.button)
+
+        def reset_value(self):
+            self.button.reset_value()
+
+        def set_value(self, value: str):
+            self.button.text = value
+
+        def get_value(self):
+            return self.button.text
+
+        def open_drop(self):
+            self.drop.open(self.button)
+
+        def close_drop(self):
+            self.drop.dismiss()
+
     NAME = "settings"
 
     def __init__(self, app: BankOpRegisterer, **kwargs):
@@ -570,7 +663,7 @@ class SettingsScreen(Screen):
             self.add_debug(widget_child)
 
     def reload(self):
-        self.ids["lang_input_val"].text = self.app.settings.get("lang")
+        self.ids["lang"].set_value(self.app.dict.LANG_DICT[self.app.settings.get("lang")])
         self.ids["debug_check"].active = False
         if self.app.settings.get("debug") == "on":
             self.ids["debug_check"].active = True
@@ -594,11 +687,11 @@ class SettingsScreen(Screen):
 
         settings_changed = False
 
-        lang_usr = self.ids["lang_input_val"].text
-        for lang in self.app.dict.LANG_LIST:
-            if lang.key == lang_usr or lang.name == lang_usr:
-                if self.app.settings.get("lang") != lang.key:
-                    self.app.settings.set("lang", lang.key)
+        lang_name_usr = self.ids["lang"].get_value()
+        for (lang_key, lang_name) in self.app.dict.LANG_DICT.items():
+            if lang_name == lang_name_usr:
+                if self.app.settings.get("lang") != lang_key:
+                    self.app.settings.set("lang", lang_key)
                     settings_changed = True
                 break
 
