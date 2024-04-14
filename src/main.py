@@ -277,13 +277,15 @@ class OpScreen(Screen):
 
         if (isinstance(widget, Layout)
             or isinstance(widget, Label)
-            or isinstance(widget, TextInput)
             or isinstance(widget, Button)):
 
-            with widget.canvas.before:
-                Color(1, 0, 0, 1)
-                widget.debug_line = Line(width=1, rectangle=(widget.x, widget.y, widget.width, widget.height))
-            widget.bind(pos=self.update_debug, size=self.update_debug)
+            if widget.canvas:
+                with widget.canvas.before:
+                    Color(1, 0, 0, 1)
+                    widget.debug_line = ( # pyright: ignore[reportAttributeAccessIssue]
+                        Line(width=1, rectangle=(widget.x, widget.y, widget.width, widget.height)))
+            widget.bind( # pyright: ignore[reportAttributeAccessIssue]
+                pos=self.update_debug, size=self.update_debug)
 
         for widget_child in widget.children:
             self.add_debug(widget_child)
@@ -473,13 +475,15 @@ class OpListScreen(Screen):
 
         if (isinstance(widget, Layout)
             or isinstance(widget, Label)
-            or isinstance(widget, TextInput)
             or isinstance(widget, Button)):
 
-            with widget.canvas.before:
-                Color(1, 0, 0, 1)
-                widget.debug_line = Line(width=1, rectangle=(widget.x, widget.y, widget.width, widget.height))
-            widget.bind(pos=self.update_debug, size=self.update_debug)
+            if widget.canvas:
+                with widget.canvas.before:
+                    Color(1, 0, 0, 1)
+                    widget.debug_line = ( # pyright: ignore[reportAttributeAccessIssue]
+                        Line(width=1, rectangle=(widget.x, widget.y, widget.width, widget.height)))
+            widget.bind( # pyright: ignore[reportAttributeAccessIssue]
+                pos=self.update_debug, size=self.update_debug)
 
         for widget_child in widget.children:
             self.add_debug(widget_child)
@@ -651,13 +655,15 @@ class SettingsScreen(Screen):
 
         if (isinstance(widget, Layout)
             or isinstance(widget, Label)
-            or isinstance(widget, TextInput)
             or isinstance(widget, Button)):
 
-            with widget.canvas.before:
-                Color(1, 0, 0, 1)
-                widget.debug_line = Line(width=1, rectangle=(widget.x, widget.y, widget.width, widget.height))
-            widget.bind(pos=self.update_debug, size=self.update_debug)
+            if widget.canvas:
+                with widget.canvas.before:
+                    Color(1, 0, 0, 1)
+                    widget.debug_line = ( # pyright: ignore[reportAttributeAccessIssue]
+                        Line(width=1, rectangle=(widget.x, widget.y, widget.width, widget.height)))
+            widget.bind( # pyright: ignore[reportAttributeAccessIssue]
+                pos=self.update_debug, size=self.update_debug)
 
         for widget_child in widget.children:
             self.add_debug(widget_child)
