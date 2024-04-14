@@ -1,10 +1,10 @@
 [app]
 
 # (str) Title of your application
-title = Bank Receipt Registerer
+title = Bank Operation Registerer
 
 # (str) Package name
-package.name = bank_receipt_registerer
+package.name = bank_operation_registerer
 
 # (str) Package domain (needed for android/ios packaging)
 package.domain = org.test
