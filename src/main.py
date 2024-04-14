@@ -22,6 +22,7 @@ from kivy.graphics import Color, Line, Rectangle
 from kivy.lang import Builder
 # from kivy.logger import Logger
 from kivy.metrics import dp
+from kivy.uix.checkbox import CheckBox
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
@@ -579,9 +580,10 @@ class SettingsScreen(Screen):
 
     def reload(self):
         self.ids["lang"].set_value(self.app.dict.LANG_DICT[self.app.settings.get("lang")])
-        self.ids["debug_check"].active = False
-        if self.app.settings.get("debug") == "on":
-            self.ids["debug_check"].active = True
+        if "debug_check" in self.ids:
+            debug_check = self.ids["debug_check"]
+            if isinstance(debug_check, CheckBox):
+                debug_check.active = (self.app.settings.get("debug") == "on")
 
         if self.app.get_debug():
             for widget in self.children:
@@ -610,14 +612,17 @@ class SettingsScreen(Screen):
                     settings_changed = True
                 break
 
-        if self.ids["debug_check"].active:
-            if self.app.settings.get("debug") == "off":
-                self.app.settings.set("debug", "on")
-                settings_changed = True
-        else:
-            if self.app.settings.get("debug") == "on":
-                self.app.settings.set("debug", "off")
-                settings_changed = True
+        if "debug_check" in self.ids:
+            debug_check = self.ids["debug_check"]
+            if isinstance(debug_check, CheckBox):
+                if debug_check.active:
+                    if self.app.settings.get("debug") == "off":
+                        self.app.settings.set("debug", "on")
+                        settings_changed = True
+                else:
+                    if self.app.settings.get("debug") == "on":
+                        self.app.settings.set("debug", "off")
+                        settings_changed = True
 
         if settings_changed:
             self.app.settings.save()
