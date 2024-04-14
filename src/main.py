@@ -39,6 +39,7 @@ from kivy.utils import platform
 
 from kivy_calendar.calendar_ui import DatePicker
 
+from drop_down_list import DropDownList
 from internal.op_mgr import OpMgr
 from internal.operation import Operation
 from lang_dict import LangDict
@@ -55,84 +56,17 @@ kivy.require('2.3.0')
 class OpScreen(Screen):
     """Operation screen"""
 
-    class ModeField(BoxLayout):
-
-        class Drop(DropDown):
-
-            class _Button(Button):
-
-                def __init__(self, name: str, op_field_mode: OpScreen.ModeField, **kwargs):
-                    super().__init__(text=name, **kwargs)
-                    self.id = name
-                    self.name = name
-                    self.op_field_mode = op_field_mode
-                    self.size_hint_y = None
-                    self.height = "35dp"
-
-                def on_release(self):
-                    self.op_field_mode.set_value(self.name)
-                    self.op_field_mode.close_drop()
-                    return super().on_release()
-
-            def __init__(self, op_field_mode: OpScreen.ModeField, **kwargs):
-                super().__init__(**kwargs)
-                self.op_field_mode = op_field_mode
-                self.size_hint = (.75, 1)
-                self.mode_button_list = [
-                    OpScreen.ModeField.Drop._Button("cb", op_field_mode),
-                    OpScreen.ModeField.Drop._Button("cb web", op_field_mode),
-                    OpScreen.ModeField.Drop._Button("paypal", op_field_mode),
-                    OpScreen.ModeField.Drop._Button("vir", op_field_mode),
-                    OpScreen.ModeField.Drop._Button("cash", op_field_mode),
-                    OpScreen.ModeField.Drop._Button("cheque", op_field_mode),
-                ]
-                for mode_button in self.mode_button_list:
-                    self.add_widget(mode_button)
-
-        class _Button(Button):
-
-            def __init__(self, op_field_mode: OpScreen.ModeField, **kwargs):
-                super().__init__(**kwargs)
-                # self.id = "button"
-                self.op_field_mode = op_field_mode
-                self.size_hint = (.75, 1)
-                self.reset_value()
-                self.op_field_mode.close_drop()
-
-            def on_release(self, **kwargs):
-                self.op_field_mode.open_drop()
-                return super().on_release(**kwargs)
-
-            def reset_value(self):
-                self.text = self.op_field_mode.drop.mode_button_list[0].text
-
-            def set_value(self, value: str):
-                self.text = value
-
+    class ModeDropDownList(DropDownList):
         def __init__(self, **kwargs):
-            super().__init__(**kwargs)
-            self.id = "mode"
-            self.orientation = "horizontal"
-            self.add_widget(Label(size_hint=(.25, 1), text="mode"))
-            self.drop = OpScreen.ModeField.Drop(self)
-            self.add_widget(self.drop)
-            self.button = OpScreen.ModeField._Button(self)
-            self.add_widget(self.button)
-
-        def reset_value(self):
-            self.button.reset_value()
-
-        def set_value(self, value: str):
-            self.button.text = value
-
-        def get_value(self):
-            return self.button.text
-
-        def open_drop(self):
-            self.drop.open(self.button)
-
-        def close_drop(self):
-            self.drop.dismiss()
+            # TODO dont hardcode once moved from kv file to python
+            super().__init__([
+                "cb",
+                "cb web",
+                "paypal",
+                "vir",
+                "cash",
+                "cheque",
+            ], **kwargs)
 
     class _TextInput(TextInput):
 
@@ -221,7 +155,7 @@ class OpScreen(Screen):
     def reset_fields(self):
         """Reset all operation fields"""
         self.ids["date_label_val"].text = self.today_date_str
-        self.ids["mode"].reset_value()
+        self.ids["mode_drop"].reset()
         self.ids["tier_input"].text = ""
         self.ids["cat_input"].text = ""
         self.ids["desc_input"].text = ""
@@ -237,7 +171,7 @@ class OpScreen(Screen):
 
         self.ids["date_label_val"].text = self.operation.date.strftime(Operation.TIME_FMT)
         if self.operation.mode != "":
-            self.ids["mode"].set_value(self.operation.mode)
+            self.ids["mode_drop"].set(self.operation.mode)
         self.ids["tier_input"].text = self.operation.tier
         self.ids["cat_input"].text = self.operation.category
         self.ids["desc_input"].text = self.operation.description
@@ -264,7 +198,7 @@ class OpScreen(Screen):
 
         operation = Operation(
             datetime.strptime(self.ids["date_label_val"].text, Operation.TIME_FMT),
-            self.ids["mode"].get_value(),
+            self.ids["mode_drop"].get(),
             self.ids["tier_input"].text,
             self.ids["cat_input"].text,
             self.ids["desc_input"].text,
@@ -277,9 +211,7 @@ class OpScreen(Screen):
         self.app.op_mgr.save()
         self.exit()
 
-# Aliases for kv file
-class OpModeField(OpScreen.ModeField):
-    pass
+# Alias for kv file
 class OpTextInput(OpScreen._TextInput):
     pass
 
@@ -474,80 +406,10 @@ class Settings():
 
 class SettingsScreen(Screen):
 
-    class LanguageField(BoxLayout):
-
-        class Drop(DropDown):
-
-            class _Button(Button):
-
-                def __init__(self, name: str, lang_field: SettingsScreen.LanguageField, **kwargs):
-                    super().__init__(text=name, **kwargs)
-                    self.id = name
-                    self.name = name
-                    self.lang_field = lang_field
-                    self.size_hint_y = None
-                    self.height = "35dp"
-
-                def on_release(self):
-                    self.lang_field.set_value(self.name)
-                    self.lang_field.close_drop()
-                    return super().on_release()
-
-            def __init__(self, lang_field: SettingsScreen.LanguageField, **kwargs):
-                super().__init__(**kwargs)
-                self.lang_field = lang_field
-                self.size_hint = (.75, 1)
-                self.mode_button_list = [
-                    SettingsScreen.LanguageField.Drop._Button("english", lang_field),
-                    SettingsScreen.LanguageField.Drop._Button("francais", lang_field),
-                ]
-                for mode_button in self.mode_button_list:
-                    self.add_widget(mode_button)
-
-        class _Button(Button):
-
-            def __init__(self, lang_field: SettingsScreen.LanguageField, **kwargs):
-                super().__init__(**kwargs)
-                # self.id = "button"
-                self.lang_field = lang_field
-                self.size_hint = (.75, 1)
-                self.reset_value()
-                self.lang_field.close_drop()
-
-            def on_release(self, **kwargs):
-                self.lang_field.open_drop()
-                return super().on_release(**kwargs)
-
-            def reset_value(self):
-                self.text = self.lang_field.drop.mode_button_list[0].text
-
-            def set_value(self, value: str):
-                self.text = value
-
+    class LanguageDropDownList(DropDownList):
         def __init__(self, **kwargs):
-            super().__init__(**kwargs)
-            self.id = "mode"
-            self.orientation = "horizontal"
-            self.add_widget(Label(size_hint=(.25, 1), text="mode"))
-            self.drop = SettingsScreen.LanguageField.Drop(self)
-            self.add_widget(self.drop)
-            self.button = SettingsScreen.LanguageField._Button(self)
-            self.add_widget(self.button)
-
-        def reset_value(self):
-            self.button.reset_value()
-
-        def set_value(self, value: str):
-            self.button.text = value
-
-        def get_value(self):
-            return self.button.text
-
-        def open_drop(self):
-            self.drop.open(self.button)
-
-        def close_drop(self):
-            self.drop.dismiss()
+            # TODO dont hardcode once moved from kv file to python
+            super().__init__(["english", "francais"], **kwargs)
 
     NAME = "settings"
 
@@ -579,7 +441,11 @@ class SettingsScreen(Screen):
             self.add_debug(widget_child)
 
     def reload(self):
-        self.ids["lang"].set_value(self.app.dict.LANG_DICT[self.app.settings.get("lang")])
+        if "lang_drop" in self.ids:
+            lang_drop = self.ids["lang_drop"]
+            if isinstance(lang_drop, SettingsScreen.LanguageDropDownList):
+                lang_drop.set(self.app.dict.LANG_DICT[self.app.settings.get("lang")])
+
         if "debug_check" in self.ids:
             debug_check = self.ids["debug_check"]
             if isinstance(debug_check, CheckBox):
@@ -604,7 +470,12 @@ class SettingsScreen(Screen):
 
         settings_changed = False
 
-        lang_name_usr = self.ids["lang"].get_value()
+        lang_name_usr = ""
+        if "lang_drop" in self.ids:
+            lang_drop = self.ids["lang_drop"]
+            if isinstance(lang_drop, SettingsScreen.LanguageDropDownList):
+                lang_name_usr = lang_drop.get()
+
         for (lang_key, lang_name) in self.app.dict.LANG_DICT.items():
             if lang_name == lang_name_usr:
                 if self.app.settings.get("lang") != lang_key:

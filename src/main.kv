@@ -30,8 +30,13 @@
                     text: root.app.dict.get("select")
                     on_release:
                         root.choose_date_btn_cb()
-            OpModeField:
-                id: mode
+            OpField:
+                Label:
+                    size_hint: .25, 1
+                    text: root.app.dict.get("mode")
+                ModeDropDownList:
+                    id: mode_drop
+                    size_hint: .75, 1
             OpField:
                 Label:
                     size_hint: .25, 1
@@ -72,7 +77,7 @@
                 anchor_x: 'left'
                 anchor_y: 'center'
                 Button:
-                    size_hint: .4, 1
+                    size_hint: .5, 1
                     text: root.app.dict.get("cancel")
                     on_release:
                         root.cancel_btn_cb()
@@ -80,7 +85,7 @@
                 anchor_x: 'right'
                 anchor_y: 'center'
                 Button:
-                    size_hint: .4, 1
+                    size_hint: .5, 1
                     text: root.app.dict.get("save")
                     on_release:
                         root.save_btn_cb()
@@ -110,7 +115,7 @@
                 anchor_y: 'center'
                 Button:
                     id: button_settings
-                    size_hint: .4, 1
+                    size_hint: .5, 1
                     text: root.app.dict.get("settings")
                     on_release:
                         root.settings_btn_cb()
@@ -118,8 +123,8 @@
                 anchor_x: 'right'
                 anchor_y: 'center'
                 Button:
-                    size_hint: .4, 1
-                    text: "add"
+                    size_hint: .5, 1
+                    text: root.app.dict.get("add")
                     on_release:
                         root.add_btn_cb()
 
@@ -138,17 +143,14 @@
             cols: 1
             row_default_height: "35dp"
             row_force_default: "True"
-            # BoxLayout:
-            #     orientation: 'horizontal'
-            #     Label:
-            #         size_hint: .25, 1
-            #         text: root.app.dict.get("language")
-            #     TextInput:
-            #         id: lang_input_val
-            #         size_hint: .75, 1
-            #         hint_text: 'en'
-            LanguageField:
-                id: lang
+            BoxLayout:
+                orientation: 'horizontal'
+                Label:
+                    size_hint: .25, 1
+                    text: root.app.dict.get("language")
+                LanguageDropDownList:
+                    id: lang_drop
+                    size_hint: .75, 1
             BoxLayout:
                 orientation: 'horizontal'
                 Label:
@@ -165,7 +167,7 @@
                 anchor_x: 'left'
                 anchor_y: 'center'
                 Button:
-                    size_hint: .4, 1
+                    size_hint: .5, 1
                     text: root.app.dict.get("cancel")
                     on_release:
                         root.cancel_btn_cb()
@@ -173,7 +175,7 @@
                 anchor_x: 'right'
                 anchor_y: 'center'
                 Button:
-                    size_hint: .4, 1
+                    size_hint: .5, 1
                     text: root.app.dict.get("save")
                     on_release:
                         root.save_btn_cb()
