@@ -520,7 +520,7 @@ class BankOpRegisterer(App):
         super().__init__(**kwargs)
 
         if platform == 'android':
-            root_dir_path = primary_external_storage_path()
+            root_dir_path = f"{primary_external_storage_path()}/Documents"
         else:
             root_dir_path = expanduser('~')
         self.logger.debug("BankOpRegisterer: root_dir_path = %s", root_dir_path)
