@@ -47,26 +47,26 @@
 
 Create `buildozer.spec` :
 
-```sh
-buildozer init
-```
+  ```sh
+  buildozer init
+  ```
 
 Edit `buildozer.spec` :
 
-```conf
-requirements = python3==3.9.9,hostpython3==3.9.9,setuptools==58.0.0,kivy,android
-```
+  ```conf
+  requirements = python3==3.9.9,hostpython3==3.9.9,setuptools==58.0.0,kivy,android
+  ```
 
-```conf
-# (str) Android NDK directory (if empty, it will be automatically downloaded.)
-android.ndk_path = /media/pache/Data1/Home/tech/dev/android/ndk
+  ```conf
+  # (str) Android NDK directory (if empty, it will be automatically downloaded.)
+  android.ndk_path = /media/pache/Data1/Home/tech/dev/android/ndk
 
-# (str) Android SDK directory (if empty, it will be automatically downloaded.)
-android.sdk_path = /media/pache/Data1/Home/tech/dev/android/sdk
+  # (str) Android SDK directory (if empty, it will be automatically downloaded.)
+  android.sdk_path = /media/pache/Data1/Home/tech/dev/android/sdk
 
-# (str) ANT directory (if empty, it will be automatically downloaded.)
-android.ant_path = /media/pache/Data1/Home/tech/dev/android/ant
-```
+  # (str) ANT directory (if empty, it will be automatically downloaded.)
+  android.ant_path = /media/pache/Data1/Home/tech/dev/android/ant
+  ```
 
 ### Build
 
