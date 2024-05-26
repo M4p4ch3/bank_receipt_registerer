@@ -41,6 +41,10 @@ class LangDict():
             "en": "operation",
             "fr": "operation",
         },
+        "operations": {
+            "en": "operations",
+            "fr": "operations",
+        },
         "date": {
             "en": "date",
             "fr": "date",
@@ -48,6 +52,10 @@ class LangDict():
         "select": {
             "en": "select",
             "fr": "selectionner",
+        },
+        "mode": {
+            "en": "mode",
+            "fr": "mode",
         },
         "tier": {
             "en": "tier",
@@ -80,15 +88,15 @@ class LangDict():
             if lang_key == key:
                 self.lang_key = lang_key
                 return
-        self.logger.warn("Unknown language key %s", lang_key)
+        self.logger.warn("LangDict: Unknown language key %s", lang_key)
 
     def get(self, key: str, lang_key: str = ""):
         if key not in self.DICT:
-            self.logger.warn("Unknown key %s", key)
+            self.logger.warn("LangDict: Unknown key %s", key)
             return key
         if lang_key:
             if lang_key not in self.DICT[key]:
-                self.logger.warn("Unknown language key %s", lang_key)
+                self.logger.warn("LangDict: Unknown language key %s", lang_key)
                 return key
             return self.DICT[key][lang_key]
         return self.DICT[key][self.lang_key]
